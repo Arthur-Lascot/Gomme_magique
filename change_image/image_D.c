@@ -135,7 +135,7 @@ void rec_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t i,size_t j,
 		{
 			tab[j+i*h]=1;
 			pixels[j+i*h]=SDL_MapRGB(format, r,g ,b);
-			printf("i:%li  j:%li  i*j:%li, max:%li\n",i,j,j+i*h,h*w);
+			//printf("i:%li  j:%li  i*j:%li, max:%li\n",i,j,j+i*h,h*w);
 			if(j>0)
 			{
 				rec_to_image(pixels,format,i,j-1,tab,h,w,r,g,b);
@@ -207,7 +207,7 @@ void surface_to_image_rec(SDL_Surface* surface)
 int mat_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h)
 {
 	int bouboul=1;
-	int max_diff=25;
+	int max_diff=25; //25
 	for(size_t i =0;i<h;i++)
 	{
 		for(size_t j =0;j<w;j++)
@@ -351,6 +351,87 @@ int mat_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h)
 					gf=gf/moy;
 				}
 			}
+/*				int diff=4;
+				if(abs(rb-rf)>diff && abs(gb-gf)>diff && abs(bb-bf)>diff)
+				{
+					bouboul=0;
+				}
+			}
+			if(i>0)
+			{
+				SDL_GetRGB(pixels[(i-1)*w+j]
+						, format, &r, &g, &b);
+				if(abs((rb+gb+bb)-(r+g+b))<max_diff)
+				{
+					pixels[(i-1)*w+j]=SDL_MapRGB(format, rf,gf ,bf);
+				}
+				if(j>0)
+				{
+					SDL_GetRGB(pixels[(i-1)*w+j-1]
+							, format, &r, &g, &b);
+					if(abs((rb+gb+bb)-(r+g+b))<max_diff)
+					{
+						pixels[(i-1)*w+j-1]=SDL_MapRGB(format, rf,gf ,bf);
+					}
+
+				}
+				if(j<w)
+				{
+					SDL_GetRGB(pixels[(i-1)*w+j+1]
+							, format, &r, &g, &b);
+					if(abs((rb+gb+bb)-(r+g+b))<max_diff)
+					{
+						pixels[(i-1)*w+j+1]=SDL_MapRGB(format, rf,gf ,bf);
+					}
+				}
+
+			}
+			if(i<h)
+			{
+				SDL_GetRGB(pixels[(i+1)*w+j]
+						, format, &r, &g, &b);
+				if(abs((rb+gb+bb)-(r+g+b))<max_diff)
+				{
+					pixels[(i+1)*w+j]=SDL_MapRGB(format, rf,gf ,bf);
+				}
+				if(j>0)
+				{
+					SDL_GetRGB(pixels[(i+1)*w+j-1]
+							, format, &r, &g, &b);
+					if(abs((rb+gb+bb)-(r+g+b))<max_diff)
+					{
+						pixels[(i+1)*w+j-1]=SDL_MapRGB(format, rf,gf ,bf);
+					}
+
+				}
+				if(j<w)
+				{
+					SDL_GetRGB(pixels[(i+1)*w+j+1]
+							, format, &r, &g, &b);
+					if(abs((rb+gb+bb)-(r+g+b))<max_diff)
+					{
+						pixels[(i+1)*w+j+1]=SDL_MapRGB(format, rf,gf ,bf);
+					}
+				}
+			}
+			if(j>0)
+			{
+				SDL_GetRGB(pixels[(i)*w+j-1]
+						, format, &r, &g, &b);
+				if(abs((rb+gb+bb)-(r+g+b))<max_diff)
+				{
+					pixels[i*w+j-1]=SDL_MapRGB(format, rf,gf ,bf);
+				}
+			}
+			if(j<w)
+			{
+				SDL_GetRGB(pixels[(i)*w+j+1]
+						, format, &r, &g, &b);
+				if(abs((rb+gb+bb)-(r+g+b))<max_diff)
+				{
+					pixels[i*w+j+1]=SDL_MapRGB(format, rf,gf ,bf);
+				}
+			}*/
 			pixels[i*w+j]=SDL_MapRGB(format, rf,gf ,bf);
 		}
 	}
@@ -367,7 +448,7 @@ void surface_to_image_mat(SDL_Surface* surface)
 	for (size_t i=0;i<100;i++)
 	{
 		if(mat_to_image(pixels,format,w,h))
-			i=20;
+			i=100000;
 	}
 	SDL_UnlockSurface(surface);
 }
