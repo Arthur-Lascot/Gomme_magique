@@ -162,14 +162,14 @@ void surface_to_image_rec(SDL_Surface* surface)
 {
 	Uint32* pixels = surface->pixels;
 	size_t w = surface->w;
-       	size_t h=surface->h;
+    size_t h = surface->h;
 	SDL_PixelFormat* format = surface->format;
 	SDL_LockSurface(surface);
 	char tab[h*w];
 	for (size_t i=0;i<h*w;i++)
 	{
 		tab[i]=0;
-	}	
+	}
 	//printf("max_h :%li  max_w:%li\n",h,w);
 	for(size_t i =0;i<w;i++)
 	{
