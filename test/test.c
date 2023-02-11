@@ -27,7 +27,7 @@ int main()
 	limit = i+width;
     }
     int j = 0;
-    for(int i = 10;j<=square1[1];i += width)
+    for(int i = 10;j<square1[1];i += width)
     {
 	j++;
 	Case[i+(width*square1[1])] = 1;

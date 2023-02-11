@@ -71,21 +71,30 @@ int checkFormat(SDL_Surface* image_surface, int* Case)
 int isInPoly(int pixel,int* Case,int width)
 {
     int count = 0;
-    
+    int isprev = 0;
     for(int i = 1; i<width; i++)
     {
         if(Case[pixel+i] == 1)
         {
             count+=1;
+	    isprev += 1;
         }
+	else
+	{
+		isprev = 0;
+	}
+	if(isprev>=4)
+	{
+		break;
+	}
     }
 
     if(count%2 != 0)
     {
-        return 1;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 void fillLine(SDL_Surface* image_surface, int* Case, int index)
@@ -95,7 +104,7 @@ void fillLine(SDL_Surface* image_surface, int* Case, int index)
     int column;
     Uint32 pixel;
     column = index%width;
-    if(isInPoly(index, Case, width-column))
+    if(isInPoly(index, Case, width-column)==0)
     {
         line = index/width;
 	pixel = get_pixel(image_surface, column, line);
@@ -115,7 +124,7 @@ void fillPoly(SDL_Surface* image_surface, int* Case)
         errx(1, "checkFormat : Pixel selection format is wrong");
     }*/
 
-    for(int i = 0; i<width*height; i+=width)
+    for(int i = 0; i<width*height; i+=1)
     {
         fillLine(image_surface,Case,i);   
     }
