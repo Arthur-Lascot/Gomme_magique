@@ -95,12 +95,13 @@ void fillLine(SDL_Surface* image_surface, int* Case, int index)
     int width = image_surface->w;
     int line;
     int column;
-    Uint32* pixels = image_surface->pixels;
+    Uint32 pixel;
     column = index%width;
     if(isInPoly(index, Case, width-column))
     {
         line = index/width;
-        pixels[index] = SDL_MapRGB(image_surface->format, 255, 0, 0);
+	pixel = get_pixel(image_surface, column, line);
+        pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
         put_pixel(image_surface, column, line, pixel);
     }
 }
