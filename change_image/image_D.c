@@ -3,7 +3,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <math.h>
-
+//const for matrice
 const int max_DIF=25;
 const int DIFF=20;
 
@@ -22,7 +22,8 @@ void draw(SDL_Renderer* renderer, SDL_Texture* texture)
 // renderer: Renderer to draw on.
 // colored: Texture that contains the colored image.
 // grayscale: Texture that contains the grayscale image.
-void event_loop(SDL_Renderer* renderer, SDL_Texture* colored, SDL_Texture* grayscale)
+void event_loop(SDL_Renderer* renderer, SDL_Texture* colored
+		, SDL_Texture* grayscale,SDL_Texture* image2)
 {
     SDL_Event event;
     SDL_Texture* t = colored;
@@ -45,9 +46,12 @@ void event_loop(SDL_Renderer* renderer, SDL_Texture* colored, SDL_Texture* grays
                 }
                 break;
 	case SDL_KEYDOWN:
+		//draw image if key a z e r is cliked
 		if(event.key.keysym.sym==SDLK_a)
 		{
-			if (t==colored)
+			t=colored;
+			draw(renderer,t);
+			/*if (t==colored)
 			{
 				t=grayscale;
 				draw(renderer,t);
@@ -56,13 +60,24 @@ void event_loop(SDL_Renderer* renderer, SDL_Texture* colored, SDL_Texture* grays
 			{
 				t=colored;
 				draw(renderer,t);
-			//	printf("changer\n");
-			}	
+			}*/
 		}
-		if(event.key.keysym.sym==SDLK_LEFT)
+		if(event.key.keysym.sym==SDLK_z)
 		{
-		
+			t=grayscale;
+			draw(renderer,t);
 		}
+		if(event.key.keysym.sym==SDLK_e)
+		{
+			t=image2;
+			draw(renderer,t);
+		}
+		/*if(event.key.keysym.sym==SDLK_r)
+		{
+			t=image3;
+			draw(renderer,t);
+		}*/
+
         }
     }
 }
@@ -124,10 +139,13 @@ void surface_to_grayscale(SDL_Surface* surface)
     SDL_UnlockSurface(surface);
 }
 
+
+//rec_to_image color pixel with the colors of the first pixel
+//usless this is recursive and he can't take a big image
 void rec_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t i,size_t j,
 		char tab[], size_t h,size_t w,Uint8 r,Uint8 g,Uint8 b)
 {
-	int max_diff=100;
+	int max_diff=100;//maximum of diifference between 2 pixel
 	//printf("i:%li  j:%li  i*j:%li, max:%li max_i: %li max_j:%li\n",i,j,j+i*h,h*w,w,h);
 	if(i<w &&j<h && tab[j+i*h]==0)
 	{
@@ -138,7 +156,7 @@ void rec_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t i,size_t j,
 			tab[j+i*h]=1;
 			pixels[j+i*h]=SDL_MapRGB(format, r,g ,b);
 			//printf("i:%li  j:%li  i*j:%li, max:%li\n",i,j,j+i*h,h*w);
-			if(j>0)
+			if(j>0)// look there neighbor
 			{
 				rec_to_image(pixels,format,i,j-1,tab,h,w,r,g,b);
 			}
@@ -157,14 +175,17 @@ void rec_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t i,size_t j,
 		}
 	}
 }
-
+//rec_to_image color pixel with the colors of the first pixel
+//usless this is recursive and he can't take a big image
 void surface_to_image_rec(SDL_Surface* surface)
 {
+	//take image and this matrice
 	Uint32* pixels = surface->pixels;
 	size_t w = surface->w;
        	size_t h=surface->h;
 	SDL_PixelFormat* format = surface->format;
 	SDL_LockSurface(surface);
+	// create a matrice for pixel if he is visited or not 
 	char tab[h*w];
 	for (size_t i=0;i<h*w;i++)
 	{
@@ -175,7 +196,7 @@ void surface_to_image_rec(SDL_Surface* surface)
 	{
 		for(size_t j =0;j<h;j++)
 		{
-			if(tab[j+i*h]==0)
+			if(tab[j+i*h]==0)// if he is not visited
 			{
 				Uint8 r, g, b;
 				SDL_GetRGB(pixels[j+i*h], format, &r, &g, &b);
@@ -185,14 +206,16 @@ void surface_to_image_rec(SDL_Surface* surface)
 	}
 	SDL_UnlockSurface(surface);
 }
-
+// this programe create blur but he don't take pixel in moyenne if he this 
+// 	diffenrece is to big between this two pixels
 int mat_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h,int max_diff,int diff)
 {
-	int bouboul=1;
+	int bouboul=1;// bouleen of return value
 	for(size_t i =0;i<h;i++)
 	{
 		for(size_t j =0;j<w;j++)
 		{
+			// take r g b of middle pixels
 			Uint8 r, g, b;
 			SDL_GetRGB(pixels[i*w+j], format, &r, &g, &b);
 			int moy=1;
@@ -203,6 +226,7 @@ int mat_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h,int ma
 			int rb=r;
 			int gb=g;
 			int bb=b;
+			// look there neighbor
 			if(i>0)
 			{
 				SDL_GetRGB(pixels[(i-1)*w+j]
@@ -302,6 +326,7 @@ int mat_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h,int ma
 					bf+=b;
 				}
 			}
+			// calcul the average of pixels
 			if(moy!=0)
 			{
 				/*rf=rf/moy;
@@ -331,12 +356,13 @@ int mat_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h,int ma
 				{
 					gf=gf/moy;
 				}
-
+				// set bouleen
 				if(abs(rb-rf)+abs(gb-gf)+abs(bb-bf)>diff)
 				{
 					bouboul=0;
 				}
 			}
+			// color there neighbor
 			if(i>0)
 			{
 				SDL_GetRGB(pixels[(i-1)*w+j]
@@ -417,6 +443,8 @@ int mat_to_image(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h,int ma
 	}
 	return bouboul;
 }
+
+// this is the same funtion to mat_to_image there are no coloration of neighbor
 
 int mat_to_image_fl(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h,int max_diff)
 {
@@ -570,8 +598,12 @@ int mat_to_image_fl(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h,int
 	return bouboul-1;
 }
 
+
+//lunch mat_to_image and mat_to_image_fl
+//
 void surface_to_image_mat(SDL_Surface* surface)
 {
+	// take matrice of pixels
 	Uint32* pixels = surface->pixels;
 	size_t w = surface->w;
        	size_t h=surface->h;
@@ -584,8 +616,9 @@ void surface_to_image_mat(SDL_Surface* surface)
 		if(mat_to_image_fl(pixels,format,w,h,25))
 			break;
 	}*/
-	while(356)
+	while(356)// while true :) 
 	{
+		//this is too change image 
 		mat_to_image_fl(pixels,format,w,h,25);
 		if(mat_to_image(pixels,format,w,h,max_DIF,DIFF))
 		{
@@ -596,6 +629,30 @@ void surface_to_image_mat(SDL_Surface* surface)
 	{
 		if(mat_to_image(pixels,format,w,h,10,9))
 			break;
+	}
+	SDL_UnlockSurface(surface);
+}
+//lunch mat_to_image and mat_to_image_fl
+//
+void surface_to_image_mat2(SDL_Surface* surface)
+{
+	// take matrice of pixels
+	Uint32* pixels = surface->pixels;
+	size_t w = surface->w;
+       	size_t h=surface->h;
+	SDL_PixelFormat* format = surface->format;
+	SDL_LockSurface(surface);
+	/*int i=0;
+	while(i<100)
+	{
+		i++;
+		if(mat_to_image_fl(pixels,format,w,h,25))
+			break;
+	}*/
+	for (int i=0;i<100;i++)
+	{
+		//this is too change image 
+		mat_to_image_fl(pixels,format,w,h,25);
 	}
 	SDL_UnlockSurface(surface);
 }
@@ -635,12 +692,15 @@ int main(int argc, char** argv)
    surface_to_image_mat(surface); 
     // - Create a new texture from the grayscale surface.
     SDL_Texture* textureg= SDL_CreateTextureFromSurface(renderer,surface);
-
+   
+    surface_to_image_mat2(surface); 
+    //printf("1\n");
+    SDL_Texture* textureg2= SDL_CreateTextureFromSurface(renderer,surface);
     // - Free the surface.
     SDL_FreeSurface( surface);
 
     // - Dispatch the events.
-	event_loop(renderer, texture, textureg);
+	event_loop(renderer, texture, textureg,textureg2);
    
     // - Destroy the objects.
     SDL_DestroyTexture(texture);
