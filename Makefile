@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra
 CPPFLAGS= `pkg-config --cflags sdl` -MMD
-LDLIBS= `pkg-config --libs sdl SDL_image` -lm -lSDL_image
+LDLIBS= -lm `pkg-config --libs sdl2 SDL2_image`
 TEST_STP = test-stp
 OBJ = $(patsubst %.c, %.o, $(wildcard src/*.c))
 TEST_SRC = $(wildcard test/*.c)
