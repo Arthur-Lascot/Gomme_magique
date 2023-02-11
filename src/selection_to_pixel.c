@@ -106,6 +106,7 @@ void fillLine(SDL_Surface* image_surface, int* Case, int index)
     column = index%width;
     if(isInPoly(index, Case, width-column)==0)
     {
+	Case[index] = 1;
         line = index/width;
 	pixel = get_pixel(image_surface, column, line);
         pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
@@ -113,7 +114,7 @@ void fillLine(SDL_Surface* image_surface, int* Case, int index)
     }
 }
 
-void fillPoly(SDL_Surface* image_surface, int* Case)
+int* fillPoly(SDL_Surface* image_surface, int* Case)
 {
     int width = image_surface->w;
     int height = image_surface->h;
@@ -128,4 +129,5 @@ void fillPoly(SDL_Surface* image_surface, int* Case)
     {
         fillLine(image_surface,Case,i);   
     }
+    return Case;
 }

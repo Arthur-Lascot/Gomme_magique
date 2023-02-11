@@ -39,7 +39,6 @@ int main()
     wait_for_keypressed();
     SDL_DestroyTexture(texture);
     fillPoly(image_surface,Case);
-    printf("\nh = h ? 0 if true : %d\n",image_surface->h==height);
     texture = SDL_CreateTextureFromSurface(renderer,image_surface);
     display_image(renderer, texture);
     wait_for_keypressed();

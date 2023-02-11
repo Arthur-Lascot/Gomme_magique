@@ -10,6 +10,6 @@ int isSurrouned(int pixel,int* Case,int width, int height);
 int checkFormat(SDL_Surface* image_surface, int* Case);
 int isInPoly(int pixel,int* Case,int width);
 void fillLine(SDL_Surface* image_surface, int* Case, int index);
-void fillPoly(SDL_Surface* image_surface, int* Case);
+int* fillPoly(SDL_Surface* image_surface, int* Case);
 
 #endif
