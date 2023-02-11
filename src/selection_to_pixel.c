@@ -1,11 +1,11 @@
 #include <stdio.h>
-#include "base_function_on_pict.h"
+#include "tools.h"
 #include "selection_to_pixel.h"
 #include <err.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 SDL_Surface* drawSide(SDL_Surface* image_surface,int* Case)
 {
@@ -95,13 +95,12 @@ void fillLine(SDL_Surface* image_surface, int* Case, int index)
     int width = image_surface->w;
     int line;
     int column;
-    Uint32 pixel;
+    Uint32* pixels = image_surface->pixels;
     column = index%width;
     if(isInPoly(index, Case, width-column))
     {
         line = index/width;
-        pixel = get_pixel(image_surface,column,line);
-        pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
+        pixels[index] = SDL_MapRGB(image_surface->format, 255, 0, 0);
         put_pixel(image_surface, column, line, pixel);
     }
 }
