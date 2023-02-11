@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra 
-CPPFLAGS= pkg-config --cflags sdl2 SDL2_image ` -MMD
+CPPFLAGS= `pkg-config --cflags sdl2 SDL2_image ` -MMD
 LDLIBS= -lm `pkg-config --libs sdl2 SDL2_image`
 TEST_STP = test-stp
 OBJ = $(patsubst %.c, %.o, $(wildcard src/*.c))
@@ -17,7 +17,7 @@ stp : $(TEST_STP)
 
 
 $(TEST_STP): $(OBJ) $(TEST_OBJ)
-	$(CC) $^ $(CFLAGS) -o $@
+	$(CC) $^ $(CFLAGS) $(CPPFLAGS) $(LDLIBS) -fsanitize=address -o $@
 
 
 $(OBJ) $(TEST_OBJ): %.o: %.c $(HEADERS)
@@ -28,3 +28,4 @@ clean :
 	$(RM) $(OBJ)
 	$(RM) $(TEST_OBJ)
 	$(RM) $(TEST_STP)
+	$(RM) */*.d

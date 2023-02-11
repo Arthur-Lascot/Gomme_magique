@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <stdio.h>
 
-char *PATH_IMAGE = "../ressources/image_test_1.jpeg";
+char *PATH_IMAGE = "ressources/image_test_1.jpeg";
 int square1[2] = {20,10};
 int square2[2] = {40,20};
 int main()
