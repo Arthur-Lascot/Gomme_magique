@@ -5,11 +5,11 @@
 #include <stdbool.h>
 #include <SDL2/SDL_image.h>
 
-SDL_Surface* drawSide(SDL_Surface* image_surface,int *Case);
-bool isSurrouned(int pixel,int* Case,int width, int height);
-bool checkFormat(SDL_Surface* image_surface, int* Case);
-bool isInPoly(int pixel,int* Case,int width);
+void drawSide(SDL_Surface* image_surface,int *Case);
+int isSurrouned(int pixel,int* Case,int width, int height);
+int checkFormat(SDL_Surface* image_surface, int* Case);
+int isInPoly(int pixel,int* Case,int width);
 void fillLine(SDL_Surface* image_surface, int* Case, int index);
-SDL_Surface* fillPoly(SDL_Surface* image_surface, int* Case);
+void fillPoly(SDL_Surface* image_surface, int* Case);
 
 #endif

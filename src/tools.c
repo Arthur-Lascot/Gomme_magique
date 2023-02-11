@@ -14,7 +14,7 @@ void display_image(SDL_Renderer* renderer, SDL_Texture* texture)
 SDL_Surface* load_image(const char* path)
 {
     SDL_Surface* surface= IMG_Load(path);
-    return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888,0);
+    return surface;
 }
 
 void wait_for_keypressed()

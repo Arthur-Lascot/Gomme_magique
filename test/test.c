@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 char *PATH_IMAGE = "ressources/image_test_1.jpeg";
-int square1[2] = {20,10};
+int square1[2] = {200,100};
 int square2[2] = {40,20};
 int main()
 {
@@ -18,23 +18,28 @@ int main()
     SDL_Window* window = SDL_CreateWindow("window", 0, 0, image_surface->w, image_surface->h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     int width = image_surface->w;
-    int* Case = calloc(sizeof(int),width * image_surface->h);
-    for(int i = 5; i<square1[0]-5; i++)
+    int height = image_surface->h;
+    int* Case = calloc(sizeof(int),width * height);
+    for(int i = 10; i<square1[0]; i++)
     {
-        Case[i] = 1;
-	Case[i+width] = 1;
+        Case[i+square1[1]*width] = 1;
+	Case[i+(2*square1[1]*width)] = 1;
 	limit = i+width;
     }
-    for(int i = 5;i<=limit;i += width)
+    int j = 0;
+    for(int i = 10;j<=square1[1];i += width)
     {
-	Case[i] = 1;
-	Case[i+square1[0]] = 1;
+	j++;
+	Case[i+(width*square1[1])] = 1;
+	Case[i+limit-10+(width*square1[1])] = 1;
     }
     drawSide(image_surface,Case);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer,image_surface);
     display_image(renderer, texture);
     wait_for_keypressed();
+    SDL_DestroyTexture(texture);
     fillPoly(image_surface,Case);
+    printf("\nh = h ? 0 if true : %d\n",image_surface->h==height);
     texture = SDL_CreateTextureFromSurface(renderer,image_surface);
     display_image(renderer, texture);
     wait_for_keypressed();

@@ -2,12 +2,11 @@
 #include "tools.h"
 #include "selection_to_pixel.h"
 #include <err.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-SDL_Surface* drawSide(SDL_Surface* image_surface,int* Case)
+void drawSide(SDL_Surface* image_surface,int* Case)
 {
     int width = image_surface->w;
     int height = image_surface->h;
@@ -28,10 +27,9 @@ SDL_Surface* drawSide(SDL_Surface* image_surface,int* Case)
             put_pixel(image_surface, column, line, pixel);
         }
     }
-    return image_surface;
 }
 
-bool isSurrouned(int pixel,int* Case,int width, int height)
+int isSurrouned(int pixel,int* Case,int width, int height)
 {
     int pos[8];
     pos[0] = pixel-width-1;
@@ -49,28 +47,28 @@ bool isSurrouned(int pixel,int* Case,int width, int height)
         {
             if(Case[pos[i]]==1)
             {
-                return false;
+                return 0;
             }
         }
     }
-    return true;    
+    return 1;    
 }
-bool checkFormat(SDL_Surface* image_surface, int* Case)
+int checkFormat(SDL_Surface* image_surface, int* Case)
 {
     int width = image_surface->w;
     int height = image_surface->h;
 
     for(int i = 0; i<width*height; i++)
     {
-        if(isSurrouned(i,Case,width,height))
+        if(isSurrouned(i,Case,width,height)!=0)
         {
-            return true;
+            return 1;
         }
     }
-    return false;
+    return 0;
 }
 
-bool isInPoly(int pixel,int* Case,int width)
+int isInPoly(int pixel,int* Case,int width)
 {
     int count = 0;
     
@@ -84,10 +82,10 @@ bool isInPoly(int pixel,int* Case,int width)
 
     if(count%2 != 0)
     {
-        return true;
+        return 1;
     }
 
-    return false;
+    return 0;
 }
 
 void fillLine(SDL_Surface* image_surface, int* Case, int index)
@@ -106,15 +104,16 @@ void fillLine(SDL_Surface* image_surface, int* Case, int index)
     }
 }
 
-SDL_Surface* fillPoly(SDL_Surface* image_surface, int* Case)
+void fillPoly(SDL_Surface* image_surface, int* Case)
 {
     int width = image_surface->w;
     int height = image_surface->h;
 
-    if(checkFormat)
+    /*if(checkFormat(image_surface, Case)!=0)
     {
+	SDL_FreeSurface(image_surface);
         errx(1, "checkFormat : Pixel selection format is wrong");
-    }
+    }*/
 
     for(int i = 0; i<width*height; i+=width)
     {
