@@ -3,6 +3,9 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <math.h>
+#include <unistd.h>
+
+#define DEBUG 1
 
 // Updates the display.
 //
@@ -90,31 +93,30 @@ Uint32 copy_pixel(Uint32 pixel, SDL_PixelFormat *format)
     return SDL_MapRGB(format, r, g, b);
 }
 
-void fill_hole(SDL_Surface *surface)
+
+
+void fill_hole(SDL_Surface *surface, int[] tab)
 {
     Uint32 *pixels = surface->pixels;
     size_t w = surface->w;
     size_t h = surface->h;
     SDL_PixelFormat *format = surface->format;
     SDL_LockSurface(surface);
-    char tab[h * w];
-    for (size_t i = 0; i < h * w; i++)
+    for (size_t y = 0; y < h; y++)
     {
-        tab[i] = 0;
-    }
-    for (size_t i = 0; i < w; i++)
-    {
-        for (size_t j = 0; j < h; j++)
+        for (size_t x = 0; x < w; x++)
         {
-            if (tab[j + i * h] == 0)
+            if (tab[x + y * w] == 0)
             {
                 Uint8 r, g, b;
-                SDL_GetRGB(pixels[j + i * h], format, &r, &g, &b);
-                rec_to_image(pixels, format, i, j, tab, h, w, r, g, b);
+                SDL_GetRGB(pixels[x + y * w], format, &r, &g, &b);
+                pixels[x + y * w] =
+                    SDL_MapRGB(format, (r/2)*1.2, g/2, (b/2)*1.2);
             }
         }
     }
     SDL_UnlockSurface(surface);
+    // sleep(5000);
 }
 
 // Loads an image in a surface.
@@ -130,13 +132,13 @@ SDL_Surface *load_image(const char *path)
 int main(int argc, char **argv)
 {
     // Checks the number of arguments.
-    if (argc > 3)
+    if (argc != 2)
         errx(EXIT_FAILURE, "Usage: image-file");
-
+    
     // - Initialize the SDL.
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
-
+    
     // - Create a window.
     SDL_Window *window =
         SDL_CreateWindow("My picture", 0, 0, 640, 640,
@@ -149,16 +151,23 @@ int main(int argc, char **argv)
         SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
+    
 
     // - Create a surface from the colored image.
     SDL_Surface *surface = load_image(argv[1]);
     // - Resize the window according to the size of the image.
     // SDL_SetWindowSize(renderer, surface->w,surface->h);
 
+
     // - Create a before_texture from the before surface.
     SDL_Texture *before_texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-    fill_hole(surface);
+    int *map = calloc(sizeof(int), surface->w * surface->h);
+
+    fillPoly(surface, map);
+
+    fill_hole(surface, map);
+
     // - Create a new texture from the after surface.
     SDL_Texture *after_texture = SDL_CreateTextureFromSurface(renderer, surface);
 
