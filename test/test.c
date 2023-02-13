@@ -48,15 +48,15 @@ int main()
 
 
     image_surface = load_image(PATH_IMAGE);
-    int width = image_surface->w;
-    int height = image_surface->h;
-    int* Case = calloc(sizeof(int),width * height);
+    width = image_surface->w;
+    height = image_surface->h;
+    Case = calloc(sizeof(int),width * height);
     for(int i = 200; i<200+square1[0]; i++)
     {
         Case[i+(200*width)] = 1;
 	    Case[i+((200+square1[1])*width)] = 1;
     }
-    int j = 0;
+    j = 0;
     for(int i = 200;j<square1[1];i += width)
     {
 	    j++;
@@ -68,7 +68,7 @@ int main()
         Case[i+(100*width)] = 1;
 	    Case[i+((100+square2[1])*width)] = 1;
     }
-    int j = 0;
+    j = 0;
     for(int i = 100;j<square2[1];i += width)
     {
 	    j++;
