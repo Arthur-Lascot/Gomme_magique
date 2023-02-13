@@ -20,18 +20,17 @@ int main()
     int width = image_surface->w;
     int height = image_surface->h;
     int* Case = calloc(sizeof(int),width * height);
-    for(int i = 100; i<100+square1[0]; i++)
+    for(int i = 200; i<200+square1[0]; i++)
     {
-        Case[i+square1[1]*width] = 1;
-	    Case[i+(2*square1[1]*width)] = 1;
-	    limit = i+width;
+        Case[i+(200*width)] = 1;
+	    Case[i+((200+square1[1])*width)] = 1;
     }
-    int j = 0;
-    for(int i = 100;j<square1[1];i += width)
+    j = 0;
+    for(int i = 200;j<square1[1];i += width)
     {
 	    j++;
-	    Case[i+(width*square1[1])] = 1;
-	    Case[i+limit-100+(width*square1[1])] = 1;
+	    Case[i+(200*width)] = 1;
+	    Case[i+square1[0]+(width*200)] = 1;
     }
     drawSide(image_surface,Case);
     SDL_Texture* texture = 
