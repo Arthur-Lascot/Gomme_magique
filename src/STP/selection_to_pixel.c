@@ -113,12 +113,8 @@ int fillLine(SDL_Surface* image_surface, int* Case, int index)
         //pixel = get_pixel(image_surface, column, line);
         pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
         put_pixel(image_surface, column, line, pixel);
-        return 0;
     }
-    else if (value=-1)
-    {
-        return -1;
-    }
+    return value;
 }
 
 int* fillPoly(SDL_Surface* image_surface, int* Case)

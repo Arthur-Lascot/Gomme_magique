@@ -93,12 +93,20 @@ Uint32 copy_pixel(Uint32 pixel, SDL_PixelFormat *format)
     return SDL_MapRGB(format, r, g, b);
 }
 
-
-void place_pixel(SDL_Surface *surface, int tab[], int x, int y)
+int iscolorequal(SDL_Surface *surface, Uint32 pixel1, Uint32 pixel2)
 {
-    Uint32 *pixels = surface->pixels;
+    Uint8 r1, g1, b1;
+    SDL_GetRGB(pixel1, surface->format, &r1, &g1, &b1);
+    Uint8 r2, g2, b2;
+    SDL_GetRGB(pixel2, surface->format, &r2, &g2, &b2);
+    return r1 == r2 && g1 == g2 && b1 == b2;
+}
+
+void place_pixel(SDL_Surface *surface, int tab[], int x, int y, int layer)
+{
+    //Uint32 *pixels = surface->pixels;
     size_t w = surface->w;
-    size_t h = surface->h;
+    //size_t h = surface->h;//
     /*if (tab[x + (y-1) * w] == 0)
         put_pixel(surface, x, y, pixels[x + (y-1) * w]);
     else if (tab[x-1 + (y-1) * w] == 0)
@@ -120,42 +128,69 @@ void place_pixel(SDL_Surface *surface, int tab[], int x, int y)
     int pixel = x + y * w;
 
     int pos[8];
-    pos[0] = pixel-w-1;
-    pos[1] = pixel-w;
-    pos[2] = pixel-w+1;
-    pos[3] = pixel+1;
+    pos[7] = pixel-w-1;
+    pos[0] = pixel-w;
+    pos[5] = pixel-w+1;
+    pos[1] = pixel+1;
     pos[4] = pixel+w+1;
-    pos[5] = pixel+w;
+    pos[2] = pixel+w;
     pos[6] = pixel+w-1;
-    pos[7] = pixel-1;
+    pos[3] = pixel-1;
 
     Uint32 col[] = {0,0,0,0,0,0,0,0};
     int nb[] = {0,0,0,0,0,0,0,0};
+    int neighbour = 0;
     for (size_t i = 0; i < 8; i++)
     {
-        if (tab[pos[i]] != 0)
-            continue;
-        for (size_t c = 0; c < 8; c++) {
-            if (col[c] == 0) {
-                col[c] = pixels[pos[i]];
-            }
-            else if (col[c] == pixels[pos[i]]) {
-                nb[c]++;
-                break;
+        if (layer < tab[pos[i]] && tab[pos[i]] <= 0){
+            neighbour++;
+            for (size_t c = 0; c < 8; c++) {
+                if (col[c] == 0) {
+                    col[c] = get_pixel(surface,pos[i]%w,pos[i]/w);
+                    nb[c] = 1;
+                    break;
+                }
+                else if (iscolorequal(surface,col[c],get_pixel(surface,pos[i]%w,pos[i]/w))) {
+                    nb[c]++;
+                    // += tab[pos[i]] == layer ? 1 : 2;
+                    break;
+                }
             }
         }
     }
-    int nbmax = 0;
-    int imax = 0;
-    for (size_t i = 0; i < 8; i++)
-    {
-        if (nb[i]>nbmax) {
-            nbmax = nb[i];
-            imax = i;
+
+    if (neighbour >= 4) {
+        tab[x + y * w] = layer;
+    
+        int nbmax = 0;
+        int imax = 0;
+        for (size_t i = 0; i < 8; i++) {
+            printf("%d ",nb[i]);
+            if (nb[i] > nbmax)
+            {
+                nbmax = nb[i];
+                imax = i;
+            }
         }
+        printf("  <- nb\n");
+        for (size_t i = 0; i < 8; i++)
+        {
+            if (nb[i]==nbmax && (int)i != imax) {
+                Uint8 r1, g1, b1;
+                SDL_GetRGB(col[imax], surface->format, &r1, &g1, &b1);
+                Uint8 r2, g2, b2;
+                SDL_GetRGB(col[i], surface->format, &r2, &g2, &b2);
+                col[imax] = SDL_MapRGB(surface->format, (r1+r2)/2, (g1+g2)/2, (b1+b2)/2);
+                Uint8 r, g, b;
+                SDL_GetRGB(col[imax], surface->format, &r, &g, &b);
+                printf("rgb    %3d,%3d,%3d    %3d,%3d,%3d    %3d,%3d,%3d\n", r1, g1, b1, r2, g2, b2, r, g, b);
+            }
+        }
+
+        put_pixel(surface, x, y, col[imax]);
     }
-    put_pixel(surface, x, y, col[imax]);
-    tab[x + y * w] = 0;
+    
+    
 }
 
 void fill_hole(SDL_Surface *surface, int tab[])
@@ -164,11 +199,14 @@ void fill_hole(SDL_Surface *surface, int tab[])
     size_t h = surface->h;
     SDL_LockSurface(surface);
 
+    int layer = -1;
     int sens = 0;
     int xd = 1;
     int yd = 0;
     size_t X = 0;
     size_t Y = 0;
+    size_t first = 0;
+    size_t last = 0;
 
     //printf("tab[100 + 100 * w] : %d\n", tab[100 + 100 * w]);
 
@@ -176,17 +214,43 @@ void fill_hole(SDL_Surface *surface, int tab[])
         if (tab[i] == 1) {
             X = i%w;
             Y = i/w;
+            first = i;
             break;
         }
     }
 
-    while (tab[X + Y * w] != 0)
+    for (size_t i = first; i < w*h; i++) {
+        if (tab[i] == 1) {
+            last = i;
+        }
+    }
+
+    int croised = 1;
+    layer = -1;
+    while (croised)
     {
-        place_pixel(surface, tab, X, Y);
+        croised = 0;
+
+        for (size_t i = first; i <= last; i++) {
+            X = i%w;
+            Y = i/w;
+            if (tab[i] == 1) {
+                place_pixel(surface, tab, X, Y, layer);
+                croised++;
+            }
+        }
+        layer--;
+    }
+
+    while (tab[X + Y * w] == 1)
+    {
+        
+        place_pixel(surface, tab, X, Y, layer);
         //printf("hello %ld %ld\n", X, Y);
 
         if (tab[(X + xd) + (Y + yd) * w] != 1)
         {
+            printf("%ld %ld\n", X, Y);
             switch (sens)
             {
             case 0: // droite
@@ -204,6 +268,7 @@ void fill_hole(SDL_Surface *surface, int tab[])
             case 3: // haut
                 xd = 1;
                 yd = 0;
+                layer--;
                 break;
 
             default:
@@ -265,26 +330,29 @@ int main(int argc, char **argv)
     int height = surface->h;
 
     int *Case = calloc(sizeof(int), width * height);
-    int square1[2] = {200,100};
-    for(int i = 200; i<200+square1[0]; i++)
+    int square1[2] = {40,40};
+    int ligne_offset = 55;
+    int column_offset = 85;
+    for(int i = column_offset; i<column_offset+square1[0]; i++)
     {
-        Case[i+(200*width)] = 1;
-	    Case[i+((200+square1[1])*width)] = 1;
+        Case[i+(ligne_offset*width)] = 1;
+	    Case[i+((ligne_offset+square1[1])*width)] = 1;
     }
     int j = 0;
-    for(int i = 200;j<square1[1];i += width)
+    for(int i = column_offset;j<square1[1];i += width)
     {
 	    j++;
-	    Case[i+(200*width)] = 1;
-	    Case[i+square1[0]+(width*200)] = 1;
+	    Case[i+(ligne_offset*width)] = 1; 
+	    Case[i+square1[0]+(ligne_offset*width)] = 1;
     }
 
     fillPoly(surface, Case);
 
-    // drawSide(surface, Case);
+    //drawSide(surface, Case);
 
     fill_hole(surface, Case);
 
+    
     free(Case);
 
     // - Create a new texture from the after surface.
