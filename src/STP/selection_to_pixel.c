@@ -23,7 +23,7 @@ void drawSide(SDL_Surface* image_surface,int* Case)
             line = i/width;
             column = i%width;
             pixel = get_pixel(image_surface,column,line);
-            pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
+            pixel = SDL_MapRGB(image_surface->format, 0, 0, 255);
             put_pixel(image_surface, column, line, pixel);
         }
     }
@@ -106,9 +106,10 @@ void fillLine(SDL_Surface* image_surface, int* Case, int index)
     column = index%width;
     if(isInPoly(index, Case, width-column)==0)
     {
-	Case[index] = 1;
-        line = index/width;
-	pixel = get_pixel(image_surface, column, line);
+        //Case[index] = 1;
+        line = index / width;
+        Case[column + line*width] = 1;
+        //pixel = get_pixel(image_surface, column, line);
         pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
         put_pixel(image_surface, column, line, pixel);
     }

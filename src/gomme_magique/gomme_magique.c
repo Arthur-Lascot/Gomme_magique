@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
+#include "../STP/selection_to_pixel.h"
+#include "../STP/tools.h"
 
 #define DEBUG 1
 
@@ -73,8 +75,6 @@ void event_loop(SDL_Renderer *renderer, SDL_Texture *before_img, SDL_Texture *af
     }
 }
 
-SDL_Surface *load_image(const char *path);
-
 Uint32 pixel_to_black(Uint32 pixel_color, SDL_PixelFormat *format)
 // convert a pixel on a black pixel
 {
@@ -94,32 +94,132 @@ Uint32 copy_pixel(Uint32 pixel, SDL_PixelFormat *format)
 }
 
 
-
-void fill_hole(SDL_Surface *surface, int[] tab)
+void place_pixel(SDL_Surface *surface, int tab[], int x, int y)
 {
     Uint32 *pixels = surface->pixels;
     size_t w = surface->w;
     size_t h = surface->h;
-    SDL_PixelFormat *format = surface->format;
-    SDL_LockSurface(surface);
-    for (size_t y = 0; y < h; y++)
+    /*if (tab[x + (y-1) * w] == 0)
+        put_pixel(surface, x, y, pixels[x + (y-1) * w]);
+    else if (tab[x-1 + (y-1) * w] == 0)
+        put_pixel(surface, x, y, pixels[x-1 + (y-1) * w]);
+    else if (tab[x+1 + (y-1) * w] == 0)
+        put_pixel(surface, x, y, pixels[x+1 + (y-1) * w]);
+    else if (tab[x-1 + y * w] == 0)
+        put_pixel(surface, x, y, pixels[x-1 + y * w]);
+
+    else if (tab[x+1 + y * w] == 0)
+        put_pixel(surface, x, y, pixels[x+1 + y * w]);
+    else if (tab[x-1 + (y+1) * w] == 0)
+        put_pixel(surface, x, y, pixels[x-1 + (y+1) * w]);
+    else if (tab[x + (y+1) * w] == 0)
+        put_pixel(surface, x, y, pixels[x + (y+1) * w]);
+    else if (tab[x+1 + (y+1) * w] == 0)
+        put_pixel(surface, x, y, pixels[x+1 + (y+1) * w]);*/
+
+    int pixel = x + y * w;
+
+    int pos[8];
+    pos[0] = pixel-w-1;
+    pos[1] = pixel-w;
+    pos[2] = pixel-w+1;
+    pos[3] = pixel+1;
+    pos[4] = pixel+w+1;
+    pos[5] = pixel+w;
+    pos[6] = pixel+w-1;
+    pos[7] = pixel-1;
+
+    Uint32 col[] = {0,0,0,0,0,0,0,0};
+    int nb[] = {0,0,0,0,0,0,0,0};
+    for (size_t i = 0; i < 8; i++)
     {
-        for (size_t x = 0; x < w; x++)
-        {
-            if (tab[x + y * w] == 0)
-            {
-                Uint8 r, g, b;
-                SDL_GetRGB(pixels[x + y * w], format, &r, &g, &b);
-                pixels[x + y * w] =
-                    SDL_MapRGB(format, (r/2)*1.2, g/2, (b/2)*1.2);
+        if (tab[pos[i]] != 0)
+            continue;
+        for (size_t c = 0; c < 8; c++) {
+            if (col[c] == 0) {
+                col[c] = pixels[pos[i]];
+            }
+            else if (col[c] == pixels[pos[i]]) {
+                nb[c]++;
+                break;
             }
         }
     }
-    SDL_UnlockSurface(surface);
-    // sleep(5000);
+    int nbmax = 0;
+    int imax = 0;
+    for (size_t i = 0; i < 8; i++)
+    {
+        if (nb[i]>nbmax) {
+            nbmax = nb[i];
+            imax = i;
+        }
+    }
+    put_pixel(surface, x, y, col[imax]);
+    tab[x + y * w] = 0;
 }
 
-// Loads an image in a surface.
+void fill_hole(SDL_Surface *surface, int tab[])
+{
+    size_t w = surface->w;
+    size_t h = surface->h;
+    SDL_LockSurface(surface);
+
+    int sens = 0;
+    int xd = 1;
+    int yd = 0;
+    size_t X = 0;
+    size_t Y = 0;
+
+    //printf("tab[100 + 100 * w] : %d\n", tab[100 + 100 * w]);
+
+    for (size_t i = 0; i < w*h; i++) {
+        if (tab[i] == 1) {
+            X = i%w;
+            Y = i/w;
+            break;
+        }
+    }
+
+    while (tab[X + Y * w] != 0)
+    {
+        place_pixel(surface, tab, X, Y);
+        //printf("hello %ld %ld\n", X, Y);
+
+        if (tab[(X + xd) + (Y + yd) * w] != 1)
+        {
+            switch (sens)
+            {
+            case 0: // droite
+                xd = 0;
+                yd = 1;
+                break;
+            case 1: // bas
+                xd = -1;
+                yd = 0;
+                break;
+            case 2: // gauche
+                xd = 0;
+                yd = -1;
+                break;
+            case 3: // haut
+                xd = 1;
+                yd = 0;
+                break;
+
+            default:
+                break;
+            }
+            sens++;
+            sens %= 4;
+        }
+        X += xd;
+        Y += yd;
+    }
+
+    SDL_UnlockSurface(surface);
+}
+
+/*// Loads an image in a surface.
 // The format of the surface is SDL_PIXELFORMAT_RGB888.
 //
 // path: Path of the image.
@@ -127,7 +227,7 @@ SDL_Surface *load_image(const char *path)
 {
     SDL_Surface *surface = IMG_Load(path);
     return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888, 0);
-}
+}*/
 
 int main(int argc, char **argv)
 {
@@ -161,12 +261,31 @@ int main(int argc, char **argv)
 
     // - Create a before_texture from the before surface.
     SDL_Texture *before_texture = SDL_CreateTextureFromSurface(renderer, surface);
+    int width = surface->w;
+    int height = surface->h;
 
-    int *map = calloc(sizeof(int), surface->w * surface->h);
+    int *Case = calloc(sizeof(int), width * height);
+    int square1[2] = {200,100};
+    for(int i = 200; i<200+square1[0]; i++)
+    {
+        Case[i+(200*width)] = 1;
+	    Case[i+((200+square1[1])*width)] = 1;
+    }
+    int j = 0;
+    for(int i = 200;j<square1[1];i += width)
+    {
+	    j++;
+	    Case[i+(200*width)] = 1;
+	    Case[i+square1[0]+(width*200)] = 1;
+    }
 
-    fillPoly(surface, map);
+    fillPoly(surface, Case);
 
-    fill_hole(surface, map);
+    // drawSide(surface, Case);
+
+    fill_hole(surface, Case);
+
+    free(Case);
 
     // - Create a new texture from the after surface.
     SDL_Texture *after_texture = SDL_CreateTextureFromSurface(renderer, surface);

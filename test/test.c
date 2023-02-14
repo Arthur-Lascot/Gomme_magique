@@ -12,7 +12,6 @@ int square2[2] = {400,300};
 int main()
 {
     SDL_Surface* image_surface;
-    int limit;
     SDL_Init(SDL_INIT_VIDEO);
     image_surface = load_image(PATH_IMAGE);
     SDL_Window* window = SDL_CreateWindow("window", 0, 0, image_surface->w, image_surface->h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
@@ -25,7 +24,7 @@ int main()
         Case[i+(200*width)] = 1;
 	    Case[i+((200+square1[1])*width)] = 1;
     }
-    j = 0;
+    int j = 0;
     for(int i = 200;j<square1[1];i += width)
     {
 	    j++;
