@@ -72,21 +72,24 @@ int isInPoly(int pixel,int* Case,int width)
 {
     int count = 0;
     int isprev = 0;
+    if(Case[pixel]==1){
+        isprev+=1;
+    }
     for(int i = 1; i<width; i++)
     {
-        if(Case[pixel+i] == 1)
+        if(Case[pixel+i] == 1 && isprev<4)
         {
             count+=1;
 	        isprev += 1;
         }
-	else
-	{
-		isprev = 0;
-	}
-	if(isprev>=4)
-	{
-		return -1;
-	}
+	    else
+	    {
+            if (isprev>1)
+            {
+                count-=isprev;
+            }
+		    isprev = 0;
+	    }
     }
 
     if(count%2 != 0)
@@ -97,7 +100,7 @@ int isInPoly(int pixel,int* Case,int width)
     return 1;
 }
 
-int fillLine(SDL_Surface* image_surface, int* Case, int index)
+void fillLine(SDL_Surface* image_surface, int* Case, int index)
 {
     int width = image_surface->w;
     int line;
@@ -114,7 +117,6 @@ int fillLine(SDL_Surface* image_surface, int* Case, int index)
         pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
         put_pixel(image_surface, column, line, pixel);
     }
-    return value;
 }
 
 int* fillPoly(SDL_Surface* image_surface, int* Case)
@@ -130,12 +132,7 @@ int* fillPoly(SDL_Surface* image_surface, int* Case)
     int column;
     for(int i = 0; i<width*height; i+=1)
     {
-        if(fillLine(image_surface,Case,i)==-1)
-        {
-            column = i%width;
-            i-=column;
-            i+=width;
-        }   
+        fillLine(image_surface,Case,i)
     }
     return Case;
 }
