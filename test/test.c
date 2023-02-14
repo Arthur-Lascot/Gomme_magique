@@ -19,21 +19,29 @@ int main()
     int width = image_surface->w;
     int height = image_surface->h;
     int* Case = calloc(sizeof(int),width * height);
-    for(int i = 200; i<200+square1[0]; i++)
+    int ligne_offset = 200;
+    int column_offset = 200;
+    for(int i = column_offset; i<column_offset+square1[0]; i++)
     {
-        Case[i+(200*width)] = 1;
-	    Case[i+((200+square1[1])*width)] = 1;
+        Case[i+(ligne_offset*width)] = 1; //(colone 200->200+square1[0] , ligne 200)
+	    Case[i+((ligne_offset+square1[1])*width)] = 1; //colone 200->200+suqare1[0] , 200+square1[1] ligne      = 2 + 3x = 17
+        /*[ [0,0,0,0,0] 
+            [0,0,0,0,0]
+            [0,0,0,1,0] 
+            [0,0,1,0,0]
+            [0,0,0,0,0] ]
+            */
     }
     int j = 0;
-    for(int i = 200;j<square1[1];i += width)
+    for(int i = column_offset;j<square1[1];i += width)
     {
 	    j++;
-	    Case[i+(200*width)] = 1;
-	    Case[i+square1[0]+(width*200)] = 1;
+	    Case[i+(ligne_offset*width)] = 1; 
+	    Case[i+square1[0]+(ligne_offset*width)] = 1; // = (1 + width) + 2 +width = 2x + 3 = 13
     }
     drawSide(image_surface,Case);
     SDL_Texture* texture = 
-        SDL_CreateTextureFromSurface(renderer,image_surface);
+    SDL_CreateTextureFromSurface(renderer,image_surface);
     display_image(renderer, texture);
     wait_for_keypressed();
     SDL_DestroyTexture(texture);
