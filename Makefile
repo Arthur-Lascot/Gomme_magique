@@ -18,15 +18,24 @@ HEADERS = $(wildcard src/*/*.h)
 stp : $(TEST_STP)
 
 $(TEST_STP): $(OBJ_STP) $(TEST_OBJ)
-	$(CC) $^ $(CFLAGS) $(CPPFLAGS) $(LDLIBS) -fsanitize=address -o $@
+	$(CC) $^ $(CFLAGS) $(CPPFLAGS) $(LDLIBS) -o $@
 
 
+#truc qui fait les o
 $(OBJ_GM) $(OBJ_STP) $(TEST_OBJ): %.o: %.c $(HEADERS)
 
 gm: $(TEST_GM)
 
 $(TEST_GM): $(OBJ_STP) $(OBJ_GM)
-	$(CC) $^ $(CFLAGS) $(CPPFLAGS) $(LDLIBS) -fsanitize=address -o $@
+	$(CC) $^ $(CFLAGS) $(CPPFLAGS) $(LDLIBS) -o $@
+
+#change_image: $(TEST_CHANGE_IMAGE)
+#
+#$(TEST_CHANGE_IMAGE): $(TESTOBJ_CI)
+#	$(CC) $^ $(CFLAGS) $(CPPFLAGS) $(LDLIBS) -o $@
+change_image : 
+	gcc -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image ` -g   -c -o src/change_image/image_D.o src/change_image/image_D.c
+	gcc   src/change_image/image_D.o  -lm `pkg-config --libs sdl2 SDL2_image` -o ./image_D
 
 
 .PHONY: clean
@@ -36,6 +45,7 @@ clean :
 	$(RM) $(TEST_OBJ)
 	$(RM) $(TEST_STP)
 	$(RM) $(TEST_GM)
+	$(RM) $(TEST_CHANGE_IMAGE)
 	$(RM) src/*/*.o
 	$(RM) */*.d
 

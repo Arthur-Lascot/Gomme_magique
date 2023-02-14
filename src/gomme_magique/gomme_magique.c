@@ -165,14 +165,14 @@ void place_pixel(SDL_Surface *surface, int tab[], int x, int y, int layer)
         int nbmax = 0;
         int imax = 0;
         for (size_t i = 0; i < 8; i++) {
-            printf("%d ",nb[i]);
+            //printf("%d ",nb[i]);
             if (nb[i] > nbmax)
             {
                 nbmax = nb[i];
                 imax = i;
             }
         }
-        printf("  <- nb\n");
+        //printf("  <- nb\n");
         for (size_t i = 0; i < 8; i++)
         {
             if (nb[i]==nbmax && (int)i != imax) {
@@ -183,7 +183,7 @@ void place_pixel(SDL_Surface *surface, int tab[], int x, int y, int layer)
                 col[imax] = SDL_MapRGB(surface->format, (r1+r2)/2, (g1+g2)/2, (b1+b2)/2);
                 Uint8 r, g, b;
                 SDL_GetRGB(col[imax], surface->format, &r, &g, &b);
-                printf("rgb    %3d,%3d,%3d    %3d,%3d,%3d    %3d,%3d,%3d\n", r1, g1, b1, r2, g2, b2, r, g, b);
+                //printf("rgb    %3d,%3d,%3d    %3d,%3d,%3d    %3d,%3d,%3d\n", r1, g1, b1, r2, g2, b2, r, g, b);
             }
         }
 
@@ -250,7 +250,7 @@ void fill_hole(SDL_Surface *surface, int tab[])
 
         if (tab[(X + xd) + (Y + yd) * w] != 1)
         {
-            printf("%ld %ld\n", X, Y);
+            //printf("%ld %ld\n", X, Y);
             switch (sens)
             {
             case 0: // droite
@@ -330,9 +330,13 @@ int main(int argc, char **argv)
     int height = surface->h;
 
     int *Case = calloc(sizeof(int), width * height);
-    int square1[2] = {40,40};
-    int ligne_offset = 55;
-    int column_offset = 85;
+    // int square1[2] = {40,40};
+    // int ligne_offset = 55;
+    // int column_offset = 85;
+    int square1[2] = {90,100};
+    int ligne_offset = 200;
+    int column_offset = 240;
+
     for(int i = column_offset; i<column_offset+square1[0]; i++)
     {
         Case[i+(ligne_offset*width)] = 1;
