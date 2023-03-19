@@ -3,6 +3,16 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+
+typedef struct Point
+{
+    int X;
+    int Y;
+    Point[2] link;
+    int nb_link;
+} Point;
+int comb(int n, int k);
+int facto(int n);
 void display_image(SDL_Renderer *renderer,SDL_Texture* texture);
 SDL_Surface* load_image(const char* path);
 void wait_for_keypressed();

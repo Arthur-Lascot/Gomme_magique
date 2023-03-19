@@ -5,6 +5,27 @@
 
 
 
+int comb(int n, int k)
+{
+    if(n<k)
+        errx(EXIT_FAILURE,"comb: n muts be greater than k");
+    int res = facto(n);
+    res = res / (facto(k) * facto(n-k));
+    return res;
+}
+
+int facto(int n)
+{
+    if(n<0)
+        errx(EXIT_FAILURE,"facto: n must be positive");
+    int res = 1;
+    for(int i = 2; i<=nb; i++)
+    {
+        res = res * i;
+    }
+    return res;
+}
+
 void display_image(SDL_Renderer* renderer, SDL_Texture* texture)
 {
     SDL_RenderCopy(renderer, texture, NULL, NULL);

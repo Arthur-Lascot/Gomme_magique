@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <SDL2/SDL_image.h>
 
+void bresenham(Point a, Point b, int* map, int w);
+int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface);
 void drawSide(SDL_Surface* image_surface,int *Case);
 int isSurrouned(int pixel,int* Case,int width, int height);
 int checkFormat(SDL_Surface* image_surface, int* Case);
