@@ -23,7 +23,7 @@ void drawSide(SDL_Surface* image_surface,int* Case)
             line = i/width;
             column = i%width;
             pixel = get_pixel(image_surface,column,line);
-            pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
+            pixel = SDL_MapRGB(image_surface->format, 0, 0, 255);
             put_pixel(image_surface, column, line, pixel);
         }
     }
@@ -77,7 +77,7 @@ int isInPoly(int pixel,int* Case,int width)
         if(Case[pixel+i] == 1)
         {
             count+=1;
-	    isprev += 1;
+	        isprev += 1;
         }
 	else
 	{
@@ -85,7 +85,7 @@ int isInPoly(int pixel,int* Case,int width)
 	}
 	if(isprev>=4)
 	{
-		break;
+		return -1;
 	}
     }
 
@@ -97,21 +97,24 @@ int isInPoly(int pixel,int* Case,int width)
     return 1;
 }
 
-void fillLine(SDL_Surface* image_surface, int* Case, int index)
+int fillLine(SDL_Surface* image_surface, int* Case, int index)
 {
     int width = image_surface->w;
     int line;
     int column;
     Uint32 pixel;
     column = index%width;
-    if(isInPoly(index, Case, width-column)==0)
+    int value = isInPoly(index, Case, width-column);
+    if(value==0)
     {
-	Case[index] = 1;
-        line = index/width;
-	pixel = get_pixel(image_surface, column, line);
+        //Case[index] = 1;
+        line = index / width;
+        Case[column + line*width] = 1;
+        //pixel = get_pixel(image_surface, column, line);
         pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
         put_pixel(image_surface, column, line, pixel);
     }
+    return value;
 }
 
 int* fillPoly(SDL_Surface* image_surface, int* Case)
@@ -124,10 +127,15 @@ int* fillPoly(SDL_Surface* image_surface, int* Case)
 	SDL_FreeSurface(image_surface);
         errx(1, "checkFormat : Pixel selection format is wrong");
     }*/
-
+    int column;
     for(int i = 0; i<width*height; i+=1)
     {
-        fillLine(image_surface,Case,i);   
+        if(fillLine(image_surface,Case,i)==-1)
+        {
+            column = i%width;
+            i-=column;
+            i+=width;
+        }   
     }
     return Case;
 }

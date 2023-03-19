@@ -182,7 +182,7 @@ void surface_to_image_rec(SDL_Surface* surface)
 	//take image and this matrice
 	Uint32* pixels = surface->pixels;
 	size_t w = surface->w;
-       	size_t h=surface->h;
+    size_t h = surface->h;
 	SDL_PixelFormat* format = surface->format;
 	SDL_LockSurface(surface);
 	// create a matrice for pixel if he is visited or not 
@@ -190,7 +190,7 @@ void surface_to_image_rec(SDL_Surface* surface)
 	for (size_t i=0;i<h*w;i++)
 	{
 		tab[i]=0;
-	}	
+	}
 	//printf("max_h :%li  max_w:%li\n",h,w);
 	for(size_t i =0;i<w;i++)
 	{

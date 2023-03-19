@@ -12,7 +12,6 @@ int square2[2] = {400,300};
 int main()
 {
     SDL_Surface* image_surface;
-    int limit;
     SDL_Init(SDL_INIT_VIDEO);
     image_surface = load_image(PATH_IMAGE);
     SDL_Window* window = SDL_CreateWindow("window", 0, 0, image_surface->w, image_surface->h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
@@ -20,22 +19,29 @@ int main()
     int width = image_surface->w;
     int height = image_surface->h;
     int* Case = calloc(sizeof(int),width * height);
-    for(int i = 100; i<100+square1[0]; i++)
+    int ligne_offset = 200;
+    int column_offset = 200;
+    for(int i = column_offset; i<column_offset+square1[0]; i++)
     {
-        Case[i+square1[1]*width] = 1;
-	    Case[i+(2*square1[1]*width)] = 1;
-	    limit = i+width;
+        Case[i+(ligne_offset*width)] = 1; //(colone 200->200+square1[0] , ligne 200)
+	    Case[i+((ligne_offset+square1[1])*width)] = 1; //colone 200->200+suqare1[0] , 200+square1[1] ligne      = 2 + 3x = 17
+        /*[ [0,0,0,0,0] 
+            [0,0,0,0,0]
+            [0,0,0,1,0] 
+            [0,0,1,0,0]
+            [0,0,0,0,0] ]
+            */
     }
     int j = 0;
-    for(int i = 100;j<square1[1];i += width)
+    for(int i = column_offset;j<square1[1];i += width)
     {
 	    j++;
-	    Case[i+(width*square1[1])] = 1;
-	    Case[i+limit-100+(width*square1[1])] = 1;
+	    Case[i+(ligne_offset*width)] = 1; 
+	    Case[i+square1[0]+(ligne_offset*width)] = 1; // = (1 + width) + 2 +width = 2x + 3 = 13
     }
     drawSide(image_surface,Case);
     SDL_Texture* texture = 
-        SDL_CreateTextureFromSurface(renderer,image_surface);
+    SDL_CreateTextureFromSurface(renderer,image_surface);
     display_image(renderer, texture);
     wait_for_keypressed();
     SDL_DestroyTexture(texture);
