@@ -657,6 +657,103 @@ void surface_to_image_mat2(SDL_Surface* surface)
 	SDL_UnlockSurface(surface);
 }
 
+void tri(unsigned int *tab,size_t el)
+{
+	while(el!=0 && tab[el]<tab[el-1])
+	{
+		Uint32 val=tab[el];
+		tab[el]=tab[el-1];
+		tab[el-1]=val;
+	}
+}
+
+void set_tab(unsigned int *tabr,unsigned int *tabb,unsigned int *tabg,size_t max,Uint32* pixels,
+		SDL_PixelFormat* format)
+{
+	for(size_t i=0;i<max;i++)
+	{
+		Uint8 r, g, b;
+		SDL_GetRGB(pixels[i], format, &r, &g, &b);
+		tabr[i]=r;
+		tabb[i]=b;
+		tabg[i]=g;
+		tri(tabr,i);
+		tri(tabb,i);
+		tri(tabg,i);
+	}
+}
+void set_pixel(unsigned int *tabr,unsigned int *tabb,unsigned int *tabg,size_t max,Uint32* pixels,
+		SDL_PixelFormat* format,size_t d,int n,Uint32* pixcopy)
+{
+	for(size_t i=0;i<max;i++)
+	{
+		Uint8 r, g, b;
+		SDL_GetRGB(pixels[i], format, &r, &g, &b);
+		int j=0;
+		while(j<n && r>tabr[d*j])
+		{
+			j++;
+		}
+		if(j==n)
+		{
+			r=tabr[max-1];
+		}
+		else
+		{
+			r=tabr[d*j];
+		}
+
+		j=0;
+		while(j<n && b>tabb[d*j])
+		{
+			j++;
+		}
+		if(j==n)
+		{
+			b=tabb[max-1];
+		}
+		else
+		{
+			b=tabb[d*j];
+		}
+		
+		j=0;
+		while(j<n && g>tabg[d*j])
+		{
+			j++;
+		}
+		if(j==n)
+		{
+			g=tabg[max-1];
+		}
+		else
+		{
+			g=tabg[d*j];
+		}
+		pixcopy[i]=SDL_MapRGB(format, r,g ,b);
+	}
+}
+
+SDL_Surface* surface_to_image_ave(SDL_Surface* surface)
+{
+	
+	Uint32* pixels = surface->pixels;
+	size_t w = surface->w;
+	size_t h=surface->h;
+	SDL_PixelFormat* format = surface->format;
+    	SDL_Surface* copy= SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);
+	Uint32* pixcopy= copy->pixels;
+	SDL_LockSurface(surface);
+	unsigned int* tabr=malloc(sizeof(unsigned int)*w*h);
+	unsigned int* tabb=malloc(sizeof(unsigned int)*w*h);
+	unsigned int* tabg=malloc(sizeof(unsigned int)*w*h);
+	set_tab(tabr,tabb,tabg,w*h,pixels,format);
+	int n=1;
+	size_t d=w*h/n;
+	set_pixel(tabr,tabb,tabg,w*h,pixels,format,d,n,pixcopy);
+	SDL_UnlockSurface(surface);
+	return copy;
+}
 
 int main(int argc, char** argv)
 {
@@ -689,9 +786,9 @@ int main(int argc, char** argv)
     // - Create a texture from the colored surface.
     SDL_Texture* texture= SDL_CreateTextureFromSurface(renderer,surface);
     
-   surface_to_image_mat(surface); 
+    SDL_Surface* surface1=surface_to_image_ave(surface); 
     // - Create a new texture from the grayscale surface.
-    SDL_Texture* textureg= SDL_CreateTextureFromSurface(renderer,surface);
+    SDL_Texture* textureg= SDL_CreateTextureFromSurface(renderer,surface1);
    
     surface_to_image_mat2(surface); 
     //printf("1\n");
