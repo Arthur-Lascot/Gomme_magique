@@ -597,11 +597,20 @@ int mat_to_image_fl(Uint32* pixels,SDL_PixelFormat* format,size_t w,size_t h,int
 	}
 	return bouboul-1;
 }
-
+//copy list of pixels
+void copy_su(Uint32* pixels,Uint32* pc,SDL_PixelFormat* format,size_t w,size_t h)
+{
+	for (size_t i=0;i<w*h;i++)
+	{
+		Uint8 r, g, b;
+		SDL_GetRGB(pixels[i], format, &r, &g, &b);
+		pc[i]=SDL_MapRGB(format, r,g ,b);
+	}
+}
 
 //lunch mat_to_image and mat_to_image_fl
 //
-void surface_to_image_mat(SDL_Surface* surface)
+SDL_Surface* surface_to_image_mat(SDL_Surface* surface)
 {
 	// take matrice of pixels
 	Uint32* pixels = surface->pixels;
@@ -609,6 +618,9 @@ void surface_to_image_mat(SDL_Surface* surface)
        	size_t h=surface->h;
 	SDL_PixelFormat* format = surface->format;
 	SDL_LockSurface(surface);
+	SDL_Surface* copy= SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);
+	Uint32* pcopy = copy->pixels;
+	copy_su(pixels,pcopy,format,w,h);
 	/*int i=0;
 	while(i<100)
 	{
@@ -619,22 +631,23 @@ void surface_to_image_mat(SDL_Surface* surface)
 	while(356)// while true :) 
 	{
 		//this is too change image 
-		mat_to_image_fl(pixels,format,w,h,25);
-		if(mat_to_image(pixels,format,w,h,max_DIF,DIFF))
+		mat_to_image_fl(pcopy,format,w,h,25);
+		if(mat_to_image(pcopy,format,w,h,max_DIF,DIFF))
 		{
 			break;
 		}
 	}
 	while(356)
 	{
-		if(mat_to_image(pixels,format,w,h,10,9))
+		if(mat_to_image(pcopy,format,w,h,10,9))
 			break;
 	}
 	SDL_UnlockSurface(surface);
+	return copy;
 }
 //lunch mat_to_image and mat_to_image_fl
 //
-void surface_to_image_mat2(SDL_Surface* surface)
+SDL_Surface* surface_to_image_mat2(SDL_Surface* surface)
 {
 	// take matrice of pixels
 	Uint32* pixels = surface->pixels;
@@ -642,6 +655,9 @@ void surface_to_image_mat2(SDL_Surface* surface)
        	size_t h=surface->h;
 	SDL_PixelFormat* format = surface->format;
 	SDL_LockSurface(surface);
+	SDL_Surface* copy= SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);
+	Uint32* pcopy = copy->pixels;
+	copy_su(pixels,pcopy,format,w,h);
 	/*int i=0;
 	while(i<100)
 	{
@@ -652,19 +668,25 @@ void surface_to_image_mat2(SDL_Surface* surface)
 	for (int i=0;i<100;i++)
 	{
 		//this is too change image 
-		mat_to_image_fl(pixels,format,w,h,25);
+		mat_to_image_fl(pcopy,format,w,h,20);
 	}
 	SDL_UnlockSurface(surface);
+	return copy;
 }
 
 void tri(unsigned int *tab,size_t el)
 {
 	while(el!=0 && tab[el]<tab[el-1])
 	{
-		Uint32 val=tab[el];
+		unsigned int val=tab[el];
 		tab[el]=tab[el-1];
 		tab[el-1]=val;
+		el--;
 	}
+	/*for(size_t u=0;u<5;u++)
+	{
+		printf("%i ",tab[u]);
+	}*/
 }
 
 void set_tab(unsigned int *tabr,unsigned int *tabb,unsigned int *tabg,size_t max,Uint32* pixels,
@@ -682,53 +704,74 @@ void set_tab(unsigned int *tabr,unsigned int *tabb,unsigned int *tabg,size_t max
 		tri(tabg,i);
 	}
 }
+
+void set_list(unsigned int *tab,size_t len,unsigned int *tabf,int n)
+{
+	unsigned long s=0;
+	for(int i=0;i<n;i++)
+	{
+		for(size_t l=0;l<len;l++)
+		{
+			s+=tab[i*len+l];
+		}
+		tabf[i]=s/len;
+		s=0;
+	}
+}
+
 void set_pixel(unsigned int *tabr,unsigned int *tabb,unsigned int *tabg,size_t max,Uint32* pixels,
 		SDL_PixelFormat* format,size_t d,int n,Uint32* pixcopy)
 {
+	unsigned int* tabrf=malloc(sizeof(unsigned int)*n);
+	unsigned int* tabbf=malloc(sizeof(unsigned int)*n);
+	unsigned int* tabgf=malloc(sizeof(unsigned int)*n);
+	set_list(tabr,d,tabrf,n);
+	set_list(tabg,d,tabgf,n);
+	set_list(tabb,d,tabbf,n);
 	for(size_t i=0;i<max;i++)
 	{
 		Uint8 r, g, b;
 		SDL_GetRGB(pixels[i], format, &r, &g, &b);
 		int j=0;
-		while(j<n && r>tabr[d*j])
+		while(j<n && r>tabrf[j])
 		{
 			j++;
 		}
 		if(j==n)
 		{
-			r=tabr[max-1];
+			r=tabrf[n-1];
 		}
 		else
 		{
-			r=tabr[d*j];
+			r=tabrf[j];
 		}
 
 		j=0;
-		while(j<n && b>tabb[d*j])
+		while(j<n && b>tabbf[j])
 		{
 			j++;
 		}
 		if(j==n)
 		{
-			b=tabb[max-1];
+			b=tabbf[n-1];
 		}
 		else
 		{
-			b=tabb[d*j];
+			b=tabbf[j];
 		}
 		
 		j=0;
-		while(j<n && g>tabg[d*j])
+		while(j<n && g>tabgf[j])
 		{
 			j++;
 		}
 		if(j==n)
 		{
-			g=tabg[max-1];
+			g=tabgf[n-1];
 		}
 		else
 		{
-			g=tabg[d*j];
+			g=tabgf[j];
 		}
 		pixcopy[i]=SDL_MapRGB(format, r,g ,b);
 	}
@@ -741,14 +784,14 @@ SDL_Surface* surface_to_image_ave(SDL_Surface* surface)
 	size_t w = surface->w;
 	size_t h=surface->h;
 	SDL_PixelFormat* format = surface->format;
-    	SDL_Surface* copy= SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);
+	SDL_Surface* copy= SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);
 	Uint32* pixcopy= copy->pixels;
 	SDL_LockSurface(surface);
 	unsigned int* tabr=malloc(sizeof(unsigned int)*w*h);
 	unsigned int* tabb=malloc(sizeof(unsigned int)*w*h);
 	unsigned int* tabg=malloc(sizeof(unsigned int)*w*h);
 	set_tab(tabr,tabb,tabg,w*h,pixels,format);
-	int n=1;
+	int n=25;
 	size_t d=w*h/n;
 	set_pixel(tabr,tabb,tabg,w*h,pixels,format,d,n,pixcopy);
 	SDL_UnlockSurface(surface);
@@ -786,13 +829,13 @@ int main(int argc, char** argv)
     // - Create a texture from the colored surface.
     SDL_Texture* texture= SDL_CreateTextureFromSurface(renderer,surface);
     
-    SDL_Surface* surface1=surface_to_image_ave(surface); 
+    SDL_Surface* surface1=surface_to_image_mat(surface); 
     // - Create a new texture from the grayscale surface.
     SDL_Texture* textureg= SDL_CreateTextureFromSurface(renderer,surface1);
+    
+    SDL_Surface* surface2=surface_to_image_mat2(surface); 
+    SDL_Texture* textureg2= SDL_CreateTextureFromSurface(renderer,surface2);
    
-    surface_to_image_mat2(surface); 
-    //printf("1\n");
-    SDL_Texture* textureg2= SDL_CreateTextureFromSurface(renderer,surface);
     // - Free the surface.
     SDL_FreeSurface( surface);
 
