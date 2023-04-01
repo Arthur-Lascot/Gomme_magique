@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 #include "../change_image/image_D.h"
-#include"../STP/selection_to_pixel.h"
+#include "../STP/selection_to_pixel.h"
 //interface
 typedef struct Inter
 {
@@ -14,10 +14,14 @@ typedef struct Inter
     GtkImage* Gimage;
     int* LP;
     size_t len;
+    SDL_Surface* surface;
+    SDL_Surface* surface1;
+    SDL_Surface* surface2;
+    char image;
     int usless; //this is usless
 } Inter;
 
-void create_image(char* filename)
+void create_image(char* filename,Inter* inter)
 {
     SDL_Surface* surface= IMG_Load(filename);
     surface=SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888,0);
@@ -27,9 +31,9 @@ void create_image(char* filename)
     SDL_SaveBMP(surface1, "image1.png");
     SDL_Surface* surface2=surface_to_image_mat2(surface);
     SDL_SaveBMP(surface2, "image2.png");
-    SDL_FreeSurface( surface);
-    SDL_FreeSurface( surface1);
-    SDL_FreeSurface( surface2);
+    inter->surface=surface;
+    inter->surface1=surface1;
+    inter->surface2=surface2;
 }
 
 //for the chose buttom
@@ -61,7 +65,7 @@ void on_fchose_image(GtkButton *button, gpointer user_data)
     		char *filename;
     		GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
     		filename = gtk_file_chooser_get_filename (chooser);
-		create_image(filename);
+		create_image(filename,inter);
 		GdkPixbuf *pix = gdk_pixbuf_new_from_file("image.png",NULL);
 		if(pix!=NULL)
 		{
@@ -69,6 +73,7 @@ void on_fchose_image(GtkButton *button, gpointer user_data)
 		}
     		g_free (filename);
   	}
+	inter->image=0;
 
 	gtk_widget_destroy (dialog);
 	if(button!=NULL)
@@ -86,6 +91,7 @@ void on_sim_1(GtkButton *button, gpointer user_data)
 		inter->usless=1;
 	}
 	GdkPixbuf *pix = gdk_pixbuf_new_from_file("image1.png",NULL);
+	inter->image=1;
 	if(pix!=NULL)
 	{
 		gtk_image_set_from_pixbuf(inter->Gimage,pix);
@@ -96,6 +102,7 @@ void on_sim_2(GtkButton *button, gpointer user_data)
 {
 	Inter* inter=user_data;
 	printf("coucou\n");
+	inter->image=2;
 	if(button!=NULL)
 	{
 		inter->usless=1;
@@ -122,9 +129,18 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 	gtk_widget_set_visible(GTK_WIDGET(inter->Bsi),FALSE);
 	if (inter->len>=3)
 	{
+		SDL_Surface* surface;
+		if(inter->image==0)
+			surface=inter->surface;
+		if(inter->image==1)
+			surface=inter->surface1;
+		if(inter->image==2)
+			surface=inter->surface2;
 		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
-		//drawBorder(inter->LP,inter->len,)
-
+		int* map = drawBorder(inter->LP, inter->len, surface);
+		drawSide(surface,map);
+		free(map);
+		SDL_FreeSurface(surface);	
 	}
 }
 
@@ -212,7 +228,8 @@ int main ()
 	     .usless=1,
 	     .Bsi=Bsi,
 	     .LP=LP,
-	     .len=len
+	     .len=len,
+	     .image=0
      };
      g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), &inter);
      g_signal_connect(Bchose_image, "clicked", 
