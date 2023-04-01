@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 #include "../change_image/image_D.h"
-
+#include"../STP/selection_to_pixel.h"
 //interface
 typedef struct Inter
 {
@@ -122,7 +122,9 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 	gtk_widget_set_visible(GTK_WIDGET(inter->Bsi),FALSE);
 	if (inter->len>=3)
 	{
-		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");	
+		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
+		//drawBorder(inter->LP,inter->len,)
+
 	}
 }
 

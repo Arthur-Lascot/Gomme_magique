@@ -38,7 +38,7 @@ interface: src/change_image/image_D.o src/interface/interface.o
 interface.o: interface.c                                                        
 	gcc -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image SDL2_ttf gtk+-3.0` -c -o src/interface/interface.o src/interface/interface.c
 
-ynterface :
+interface :
 	gcc -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image ` -g   -c -o src/change_image/image_D.o src/change_image/image_D.c
 	gcc `pkg-config --cflags gtk+-3.0` -Wall -O3   -g   -c -o src/interface/interface.o src/interface/interface.c	
 	gcc -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image SDL2_ttf gtk+-3.0` -c -o interface.o interface.c
