@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <math.h>
 
 void bresenham(Point a, Point b, int* map, int w)
 {
@@ -228,10 +229,28 @@ int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface)
     }
     free(raw_points);
     //////////////////////////////////////////////////////////
+    double vectLine[2];
+    double vectorthoG[2];
+    double vectorthoN[2];
+    double norm;
     for(int i = 0; i<nb_points-1; i++)
     {
+        vectLine[0] = (double)(points[i].X - points[i+1].X);
+        vectLine[1] = (double)(points[i].Y - points[i+1].Y);
+        vectorthoG[0] = vectLine[1];
+        vectorthoG[1] = (-1)*vectLine[0];
+        norm = sqrt(vectorthoG[0]*vectorthoG[0] + vectorthoG[1]*vectorthoG[1]);
+        vectorthoN[0] = vectorthoG[0]/norm;
+        vectorthoN[1] = vectorthoG[1]/norm;
         bresenham(points[i], points[i+1], map, w);
     }
+    vectLine[0] = points[0].X - points[nb_points-1].X;
+    vectLine[1] = points[0].Y - points[nb_points-1].Y;
+    vectorthoG[0] = vectLine[1];
+    vectorthoG[1] = (-1)*vectLine[0];
+    norm = sqrt(vectorthoG[0]*vectorthoG[0] + vectorthoG[1]*vectorthoG[1]);
+    vectorthoN[0] = vectorthoG[0]/norm;
+    vectorthoN[1] = vectorthoG[1]/norm;
     bresenham(points[0], points[nb_points-1], map, w);
     return map;
 }
