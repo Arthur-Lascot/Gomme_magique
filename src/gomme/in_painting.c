@@ -11,4 +11,13 @@ void inPainting(SDL_Surface surface, int* map)
         else
             C[i] = 0; // C(pixel) = 0 for pixel in (Omega)
     }// note à moi même avoir une aire superficiel de vrai aire + 1 contour de pixel pour bouger la bordure
+    
+    // finding the priority values
+    for(int i = 0; i<w*h; i++)
+    {
+        if(map[i]==1)// points of the edge
+        {
+            
+        }
+    }
 }
