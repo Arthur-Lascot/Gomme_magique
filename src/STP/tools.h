@@ -8,7 +8,7 @@ typedef struct Point
 {
     int X;
     int Y;
-    Point[2] link;
+    struct Point *link[2];
     int nb_link;
 } Point;
 int comb(int n, int k);

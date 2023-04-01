@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include "../change_image/image_D.h"
 #include "../STP/selection_to_pixel.h"
+#include "interface.h"
 
 
 void create_image(char* filename,Inter* inter)
