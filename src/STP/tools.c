@@ -19,7 +19,7 @@ int facto(int n)
     if(n<0)
         errx(EXIT_FAILURE,"facto: n must be positive");
     int res = 1;
-    for(int i = 2; i<=nb; i++)
+    for(int i = 2; i<=n; i++)
     {
         res = res * i;
     }

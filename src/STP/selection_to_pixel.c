@@ -9,7 +9,7 @@
 
 void bresenham(Point a, Point b, int* map, int w)
 {
-    int dx = b.X - a.x;
+    int dx = b.X - a.X;
     int dy = b.Y - a.Y;
     int x1 = a.X;
     int y1 = a.Y;
@@ -190,7 +190,7 @@ void bresenham(Point a, Point b, int* map, int w)
                 while(x1 != x2)
                 {
                     *(map+x1+(y1*w)) = 1;
-                    x--;
+                    x1--;
                 }
             }
         }
@@ -218,11 +218,11 @@ int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface)
     int* map = calloc(sizeof(int),w*h);
     //Formating an array of Point
     ///////////////////////////////////////////////////////////
-    Point[nb_points] points;
+    Point points[nb_points];
     for(size_t i = 0; i<nb_points*2; i+=2)
     {
-         points[i].X = raw_points + i;
-         points[i].Y = raw_points + i + 1;
+         points[i].X = *(raw_points + i);
+         points[i].Y = *(raw_points + i + 1);
          points[i].nb_link = 0;
          (points[i].link)[0] = NULL;
          (points[i].link)[1] = NULL;
@@ -233,7 +233,7 @@ int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface)
     double vectorthoG[2];
     double vectorthoN[2];
     double norm;
-    for(int i = 0; i<nb_points-1; i++)
+    for(size_t i = 0; i<nb_points-1; i++)
     {
         vectLine[0] = (double)(points[i].X - points[i+1].X);
         vectLine[1] = (double)(points[i].Y - points[i+1].Y);
