@@ -34,9 +34,6 @@ void create_image(char* filename,Inter* inter)
     inter->surface=surface;
     inter->surface1=surface1;
     inter->surface2=surface2;
-    SDL_FreeSurface( surface);
-    SDL_FreeSurface( surface1);
-    SDL_FreeSurface( surface2);
 }
 
 //for the chose buttom
