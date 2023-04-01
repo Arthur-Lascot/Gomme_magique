@@ -11,6 +11,7 @@ typedef struct Point
     struct Point *link[2];
     int nb_link;
 } Point;
+
 int comb(int n, int k);
 int facto(int n);
 void display_image(SDL_Renderer *renderer,SDL_Texture* texture);

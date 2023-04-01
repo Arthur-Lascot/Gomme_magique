@@ -122,6 +122,7 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
 		int* map = drawBorder(inter->LP, inter->len, surface);
 		drawSide(surface,map);
+		printf("drawSide est passe\n");
 		free(map);
 		SDL_FreeSurface(surface);	
 	}

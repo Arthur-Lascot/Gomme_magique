@@ -229,10 +229,10 @@ int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface)
     }
     free(raw_points);
     //////////////////////////////////////////////////////////
-    double vectLine[2];
-    double vectorthoG[2];
-    double vectorthoN[2];
-    double norm;
+    //double vectLine[2];
+    //double vectorthoG[2];
+    //double vectorthoN[2];
+    //double norm;
     for(size_t i = 0; i<nb_points-1; i++)
     {
         /*vectLine[0] = (double)(points[i].X - points[i+1].X);
@@ -341,7 +341,7 @@ int fillLine(SDL_Surface* image_surface, int* Case, int index)
     int width = image_surface->w;
     int line;
     int column;
-    Uint32 pixel;
+    //Uint32 pixel;
     column = index%width;
     int value = isInPoly(index, Case, width-column);
     if(value==0)
