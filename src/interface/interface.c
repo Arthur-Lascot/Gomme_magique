@@ -1,26 +1,46 @@
 #include <gtk/gtk.h>
+#include "../change_image/image_D.h"
 
 //interface
 typedef struct Inter
 {
     GtkWindow* window;              // Main window
     GtkButton* Bs1;       
-    GtkButton* Bs2;       
-    GtkButton* Bs3;       
+    GtkButton* Bs2;      
+    GtkButton* Bs3;
     GtkButton* Bse;       
     GtkButton* Bse_im;
+    GtkButton* Bsi;
     GtkImage* Gimage;
+    int* LP;
+    size_t len;
     int usless; //this is usless
 } Inter;
+
+void create_image(char* filename)
+{
+    SDL_Surface* surface= IMG_Load(filename);
+    surface=SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888,0);
+    surface=resize(surface,400,530);
+    SDL_SaveBMP(surface, "image.png");
+    SDL_Surface* surface1=surface_to_image_mat(surface);
+    SDL_SaveBMP(surface1, "image1.png");
+    SDL_Surface* surface2=surface_to_image_mat2(surface);
+    SDL_SaveBMP(surface2, "image2.png");
+    SDL_FreeSurface( surface);
+    SDL_FreeSurface( surface1);
+    SDL_FreeSurface( surface2);
+}
+
 //for the chose buttom
 void on_fchose_image(GtkButton *button, gpointer user_data)
 {
 	Inter* inter =user_data;
 	//active another button
 	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs2),TRUE);
-	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs3),TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs1),TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bse),TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs3),TRUE);
 	//creat dialog windows
 	GtkWidget *dialog;
 	GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
@@ -41,7 +61,8 @@ void on_fchose_image(GtkButton *button, gpointer user_data)
     		char *filename;
     		GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
     		filename = gtk_file_chooser_get_filename (chooser);
-		GdkPixbuf *pix = gdk_pixbuf_new_from_file(filename,NULL);
+		create_image(filename);
+		GdkPixbuf *pix = gdk_pixbuf_new_from_file("image.png",NULL);
 		if(pix!=NULL)
 		{
 			gtk_image_set_from_pixbuf(inter->Gimage,pix);
@@ -64,6 +85,11 @@ void on_sim_1(GtkButton *button, gpointer user_data)
 	{
 		inter->usless=1;
 	}
+	GdkPixbuf *pix = gdk_pixbuf_new_from_file("image1.png",NULL);
+	if(pix!=NULL)
+	{
+		gtk_image_set_from_pixbuf(inter->Gimage,pix);
+	}
 }
 
 void on_sim_2(GtkButton *button, gpointer user_data)
@@ -74,15 +100,29 @@ void on_sim_2(GtkButton *button, gpointer user_data)
 	{
 		inter->usless=1;
 	}
+	GdkPixbuf *pix = gdk_pixbuf_new_from_file("image2.png",NULL);
+	if(pix!=NULL)
+	{
+		gtk_image_set_from_pixbuf(inter->Gimage,pix);
+	}
 }
-
 void on_sim_3(GtkButton *button, gpointer user_data)
 {
 	Inter* inter=user_data;
-	printf("bip biiiiiiiip\n");
+	printf("coucou\n");
 	if(button!=NULL)
 	{
 		inter->usless=1;
+	}
+	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs2),TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs1),TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bse),TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bse_im),TRUE);
+	gtk_widget_set_focus_on_click(GTK_WIDGET(inter->Bsi),FALSE);
+	gtk_widget_set_visible(GTK_WIDGET(inter->Bsi),FALSE);
+	if (inter->len>=3)
+	{
+		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");	
 	}
 }
 
@@ -94,6 +134,27 @@ void on_select(GtkButton *button, gpointer user_data)
 	{
 		inter->usless=1;
 	}
+	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs2),FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs1),FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bse),FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bse_im),FALSE);
+	gtk_widget_set_focus_on_click(GTK_WIDGET(inter->Bsi),TRUE);
+	gtk_widget_set_visible(GTK_WIDGET(inter->Bsi),TRUE);
+	inter->len=0;
+}
+void on_click(GtkButton *button, gpointer user_data)
+{
+	Inter* inter=user_data;
+	if(button!=NULL)
+	{
+		inter->usless=1;
+	}
+	int x1,y1;
+	gtk_widget_get_pointer(GTK_WIDGET(inter->Gimage),&x1,&y1);
+	printf("%i %i\n",x1,y1);
+	inter->LP[inter->len*2]=x1;
+	inter->LP[inter->len*2+1]=y1;
+	inter->len++;
 }
 
 // Main function.                                                               
@@ -106,7 +167,7 @@ int main ()
      // (Exits if an error occurs.)                                              
      GtkBuilder* builder = gtk_builder_new();                                    
      GError* error = NULL;                                                       
-     if (gtk_builder_add_from_file(builder, "interface_n1.glade", &error) == 0)         
+     if (gtk_builder_add_from_file(builder, "src/interface/interface_n1.glade", &error) == 0)         
      {                                                                           
          g_printerr("Error loading file: %s\n", error->message);                 
          g_clear_error(&error);                                                  
@@ -124,29 +185,41 @@ int main ()
      GtkButton* Bs2 = GTK_BUTTON(gtk_builder_get_object(builder, "si2"));
      
      GtkButton* Bs3 = GTK_BUTTON(gtk_builder_get_object(builder, "si3"));
-     
+      
      GtkButton* Bse = GTK_BUTTON(gtk_builder_get_object(builder, "se"));
      
-     GtkImage* Gimage = GTK_IMAGE(gtk_builder_get_object(builder, "image"));
+     GtkButton* Bsi = GTK_BUTTON(gtk_builder_get_object(builder, "boutton_image"));
      
+     GtkImage* Gimage = GTK_IMAGE(gtk_builder_get_object(builder, "image"));
+     gtk_widget_set_focus_on_click(GTK_WIDGET(Bsi),FALSE); 
+	gtk_widget_set_sensitive(GTK_WIDGET(Bs2),FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(Bs1),FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(Bse),FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(Bs3),FALSE);
+     
+     int* LP=malloc(sizeof(int)*1024);
+     size_t len=0;
      Inter inter=
      {
 	     .Bse=Bse,
-	     .Bs3=Bs3,
 	     .Bs2=Bs2,
 	     .Bs1=Bs1,
+	     .Bs3=Bs3,
 	     .Bse_im=Bchose_image,
 	     .Gimage=Gimage,
-	     .usless=1
+	     .usless=1,
+	     .Bsi=Bsi,
+	     .LP=LP,
+	     .len=len
      };
      g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), &inter);
      g_signal_connect(Bchose_image, "clicked", 
 		     G_CALLBACK(on_fchose_image), &inter);
      g_signal_connect(Bse, "clicked", G_CALLBACK(on_select), &inter);
-     g_signal_connect(Bs3, "clicked", G_CALLBACK(on_sim_3), &inter);
      g_signal_connect(Bs2, "clicked", G_CALLBACK(on_sim_2), &inter);
      g_signal_connect(Bs1, "clicked", G_CALLBACK(on_sim_1), &inter);
-	printf("coucou\n");
+     g_signal_connect(Bs3, "clicked", G_CALLBACK(on_sim_3), &inter);
+     g_signal_connect(Bsi, "clicked", G_CALLBACK(on_click), &inter);
      gtk_main();
      return 1;                                                             
  } 

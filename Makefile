@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra 
-CPPFLAGS= `pkg-config --cflags sdl2 SDL2_image ` 
-LDLIBS= -lm `pkg-config --libs sdl2 SDL2_image`
+CPPFLAGS= `pkg-config --cflags sdl2 SDL2_image --cflags gtk+-3.0` 
+LDLIBS= -lm `pkg-config --libs sdl2 SDL2_image --cflags gtk+-3.0`
 
 TEST_STP = test-stp
 TEST_CHANGE_IMAGE = image_D
@@ -33,10 +33,17 @@ $(TEST_GM): $(OBJ_STP) $(OBJ_GM)
 #
 #$(TEST_CHANGE_IMAGE): $(TESTOBJ_CI)
 #	$(CC) $^ $(CFLAGS) $(CPPFLAGS) $(LDLIBS) -o $@
-change_image : 
-	gcc -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image ` -g   -c -o src/change_image/image_D.o src/change_image/image_D.c
-	gcc   src/change_image/image_D.o  -lm `pkg-config --libs sdl2 SDL2_image` -o ./image_D
+interface: src/change_image/image_D.o src/interface/interface.o
+	gcc  src/change_image/image_D.o src/interface/interface.o -lm  `pkg-config --libs sdl2 SDL2_image SDL2_ttf --cflags gtk+-3.0` -o interface
+interface.o: interface.c                                                        
+	gcc -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image SDL2_ttf gtk+-3.0` -c -o src/interface/interface.o src/interface/interface.c
 
+ynterface :
+	gcc -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image ` -g   -c -o src/change_image/image_D.o src/change_image/image_D.c
+	gcc `pkg-config --cflags gtk+-3.0` -Wall -O3   -g   -c -o src/interface/interface.o src/interface/interface.c	
+	gcc -Wall -Wextra -O3 `pkg-config --cflags sdl2 SDL2_image SDL2_ttf gtk+-3.0` -c -o interface.o interface.c
+
+	#gcc   src/change_image/image_D.o  -lm `pkg-config --libs sdl2 SDL2_image` `pkg-config --libs gtk+-3.0` -o ./interface
 
 .PHONY: clean
 

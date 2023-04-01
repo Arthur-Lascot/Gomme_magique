@@ -1,8 +1,5 @@
-#include <err.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <stdio.h>
-#include <math.h>
+#include "image_D.h"
+
 //const for matrice
 const int max_DIF=25;
 const int DIFF=20;
@@ -11,18 +8,18 @@ const int DIFF=20;
 //
 // renderer: Renderer to draw on.
 // texture: Texture that contains the image.
-void draw(SDL_Renderer* renderer, SDL_Texture* texture)
+/*void draw(SDL_Renderer* renderer, SDL_Texture* texture)
 {
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
 }
-
+*/
 // Event loop that calls the relevant event handler.
 //
 // renderer: Renderer to draw on.
 // colored: Texture that contains the colored image.
 // grayscale: Texture that contains the grayscale image.
-void event_loop(SDL_Renderer* renderer, SDL_Texture* colored
+/*void event_loop(SDL_Renderer* renderer, SDL_Texture* colored
 		, SDL_Texture* grayscale,SDL_Texture* image2)
 {
     SDL_Event event;
@@ -50,7 +47,7 @@ void event_loop(SDL_Renderer* renderer, SDL_Texture* colored
 		if(event.key.keysym.sym==SDLK_a)
 		{
 			t=colored;
-			draw(renderer,t);
+			draw(renderer,t);*/
 			/*if (t==colored)
 			{
 				t=grayscale;
@@ -60,7 +57,7 @@ void event_loop(SDL_Renderer* renderer, SDL_Texture* colored
 			{
 				t=colored;
 				draw(renderer,t);
-			}*/
+			}*//*
 		}
 		if(event.key.keysym.sym==SDLK_z)
 		{
@@ -71,16 +68,16 @@ void event_loop(SDL_Renderer* renderer, SDL_Texture* colored
 		{
 			t=image2;
 			draw(renderer,t);
-		}
+		}*/
 		/*if(event.key.keysym.sym==SDLK_r)
 		{
 			t=image3;
 			draw(renderer,t);
 		}*/
-
+/*
         }
     }
-}
+}*/
 
 Uint32 pixel_to_grayscale(Uint32 pixel_color, SDL_PixelFormat* format);
 SDL_Surface* load_image(const char* path);
@@ -108,11 +105,11 @@ Uint32 copy_pixel(Uint32 pixel,SDL_PixelFormat* format)
 // The format of the surface is SDL_PIXELFORMAT_RGB888.
 //
 // path: Path of the image.
-SDL_Surface* load_image(const char* path)
+/*SDL_Surface* load_image(const char* path)
 {
     SDL_Surface* surface= IMG_Load(path);
     return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888,0);
-}
+}*/
 
 // Converts a colored pixel into grayscale.
 //
@@ -628,7 +625,7 @@ SDL_Surface* surface_to_image_mat(SDL_Surface* surface)
 		if(mat_to_image_fl(pixels,format,w,h,25))
 			break;
 	}*/
-	while(356)// while true :) 
+	for(int i=0;i<100;i++) 
 	{
 		//this is too change image 
 		mat_to_image_fl(pcopy,format,w,h,25);
@@ -637,7 +634,7 @@ SDL_Surface* surface_to_image_mat(SDL_Surface* surface)
 			break;
 		}
 	}
-	while(356)
+	for(int i=0;i<100;i++) 
 	{
 		if(mat_to_image(pcopy,format,w,h,10,9))
 			break;
@@ -797,8 +794,37 @@ SDL_Surface* surface_to_image_ave(SDL_Surface* surface)
 	SDL_UnlockSurface(surface);
 	return copy;
 }
+SDL_Surface* resize(SDL_Surface* surface, size_t newx, size_t newy)             
+{                                                                               
+      SDL_Surface* newsurface=                                                    
+              SDL_CreateRGBSurface(0,newx,newy,32,0,0,0,0);                       
+                                                                                  
+      Uint32 *pixels = surface->pixels;                                           
+      size_t oldx = surface->w;                                                   
+      size_t oldy = surface->h;                                                   
+      Uint32 *newpixels = newsurface->pixels;                                     
+                                                                                  
+      float ratiox = (float)oldx / newx;                                          
+      float ratioy = (float)oldy / newy;                                          
+      //printf("x%f  y%f\n", ratiox, ratioy);                                     
+                                                                                  
+      for (size_t y = 0; y < newy; y++)                                           
+      {                                                                           
+          for (size_t x = 0; x < newx; x++)                                       
+          {                                                                       
+              newpixels[get_index(x,y,newx)] =                                    
+                  pixels[get_index(x*ratiox,y*ratioy,oldx)];                      
+          }                                                                       
+      }                                                                           
+      return newsurface;                                                          
+}                                                                               
+                                                                                  
+size_t get_index(size_t x, size_t y, size_t maxx)                               
+{                                                                               
+      return x + y * maxx;                                                        
+}
 
-int main(int argc, char** argv)
+/*int main(int argc, char** argv)
 {
     // Checks the number of arguments.
     if (argc  >3)
@@ -828,7 +854,8 @@ int main(int argc, char** argv)
    
     // - Create a texture from the colored surface.
     SDL_Texture* texture= SDL_CreateTextureFromSurface(renderer,surface);
-    
+
+   surface=resize(surface,640,640);
     SDL_Surface* surface1=surface_to_image_mat(surface); 
     // - Create a new texture from the grayscale surface.
     SDL_Texture* textureg= SDL_CreateTextureFromSurface(renderer,surface1);
@@ -849,4 +876,4 @@ int main(int argc, char** argv)
     SDL_Quit();
 
     return EXIT_SUCCESS;
-}
+}*/
