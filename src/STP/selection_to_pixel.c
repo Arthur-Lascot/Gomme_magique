@@ -5,6 +5,255 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <math.h>
+
+void bresenham(Point a, Point b, int* map, int w)
+{
+    int dx = b.X - a.x;
+    int dy = b.Y - a.Y;
+    int x1 = a.X;
+    int y1 = a.Y;
+    int x2 = b.X;
+    int y2 = b.Y;
+
+    if(dx!=0)
+    {
+        if(dx>0)
+        {
+            if(dy!=0)
+            {
+                if(dy>0)
+                {
+                    if(dx>=dy)
+                    {
+                        int e = dx;
+                        dx = dx * 2;
+                        dy = dy * 2;
+                        while((x1)!=x2)
+                        {
+                            *(map+x1+(y1*w)) = 1;
+                            x1++;
+                            e = e - dy;
+                            if(e < 0)
+                            {
+                                y1++;
+                                e = e + dx;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int e = dy;
+                        dx = dx * 2;
+                        dy = dy * 2;
+                        while((y1)!=y2)
+                        {
+                            *(map+x1+(y1*w)) = 1;
+                            y1++;
+                            e = e - dx;
+                            if(e < 0)
+                            {
+                                x1++;
+                                e = e + dy;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if(dx >= -dy)
+                    {
+                        int e = dx;
+                        dx = dx * 2;
+                        dy = dy * 2;
+                        while((x1)!=x2)
+                        {
+                            *(map+x1+(y1*w)) = 1;
+                            x1++;
+                            e = e + dy;
+                            if(e < 0)
+                            {
+                                y1--;
+                                e = e + dx;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int e = dy;
+                        dx = dx * 2;
+                        dy = dy * 2;
+                        while((y1)!=y2)
+                        {
+                            *(map+x1+(y1*w)) = 1;
+                            y1--;
+                            e = e + dx;
+                            if(e < 0)
+                            {
+                                x1++;
+                                e = e + dy;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                while(x1!=x2)
+                {
+                    *(map+x1+(y1*w)) = 1;
+                    x1++;
+                }
+            }
+        }
+        else
+        {
+            if(dy != 0)
+            {
+                if(dy > 0)
+                {
+                    if(-dx >= dy)
+                    {
+                        int e = dx;
+                        dx = dx * 2;
+                        dy = dy * 2;
+                        while((x1)!=x2)
+                        {
+                            *(map+x1+(y1*w)) = 1;
+                            x1--;
+                            e = e + dy;
+                            if(e < 0)
+                            {
+                                y1++;
+                                e = e + dx;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int e = dy;
+                        dx = dx * 2;
+                        dy = dy * 2;
+                        while((y1)!=y2)
+                        {
+                            *(map+x1+(y1*w)) = 1;
+                            y1++;
+                            e = e + dx;
+                            if(e < 0)
+                            {
+                                x1--;
+                                e = e + dy;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if(dx <= dy)
+                    {
+                        int e = dx;
+                        dx = dx * 2;
+                        dy = dy * 2;
+                        while((x1)!=x2)
+                        {
+                            *(map+x1+(y1*w)) = 1;
+                            x1--;
+                            e = e - dy;
+                            if(e < 0)
+                            {
+                                y1--;
+                                e = e + dx;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int e = dy;
+                        dx = dx * 2;
+                        dy = dy * 2;
+                        while((y1)!=y2)
+                        {
+                            *(map+x1+(y1*w)) = 1;
+                            y1--;
+                            e = e - dx;
+                            if(e < 0)
+                            {
+                                x1--;
+                                e = e + dy;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                while(x1 != x2)
+                {
+                    *(map+x1+(y1*w)) = 1;
+                    x--;
+                }
+            }
+        }
+    }
+    else
+    {
+        if(dy != 0)
+        {
+            if(dy > 0)
+            {
+                while(y1 != y2)
+                {
+                    *(map+x1+(y1*w)) = 1;
+                    y1++;
+                }
+            }
+        }
+    }
+}
+
+int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface)
+{
+    int w = image_surface->w;
+    int h = image_surface->h;
+    int* map = calloc(sizeof(int),w*h);
+    //Formating an array of Point
+    ///////////////////////////////////////////////////////////
+    Point[nb_points] points;
+    for(size_t i = 0; i<nb_points*2; i+=2)
+    {
+         points[i].X = raw_points + i;
+         points[i].Y = raw_points + i + 1;
+         points[i].nb_link = 0;
+         (points[i].link)[0] = NULL;
+         (points[i].link)[1] = NULL;
+    }
+    free(raw_points);
+    //////////////////////////////////////////////////////////
+    double vectLine[2];
+    double vectorthoG[2];
+    double vectorthoN[2];
+    double norm;
+    for(int i = 0; i<nb_points-1; i++)
+    {
+        vectLine[0] = (double)(points[i].X - points[i+1].X);
+        vectLine[1] = (double)(points[i].Y - points[i+1].Y);
+        vectorthoG[0] = vectLine[1];
+        vectorthoG[1] = (-1)*vectLine[0];
+        norm = sqrt(vectorthoG[0]*vectorthoG[0] + vectorthoG[1]*vectorthoG[1]);
+        vectorthoN[0] = vectorthoG[0]/norm;
+        vectorthoN[1] = vectorthoG[1]/norm;
+        bresenham(points[i], points[i+1], map, w);
+    }
+    vectLine[0] = points[0].X - points[nb_points-1].X;
+    vectLine[1] = points[0].Y - points[nb_points-1].Y;
+    vectorthoG[0] = vectLine[1];
+    vectorthoG[1] = (-1)*vectLine[0];
+    norm = sqrt(vectorthoG[0]*vectorthoG[0] + vectorthoG[1]*vectorthoG[1]);
+    vectorthoN[0] = vectorthoG[0]/norm;
+    vectorthoN[1] = vectorthoG[1]/norm;
+    bresenham(points[0], points[nb_points-1], map, w);
+    return map;
+}
 
 void drawSide(SDL_Surface* image_surface,int* Case)
 {
@@ -117,7 +366,7 @@ int fillLine(SDL_Surface* image_surface, int* Case, int index)
     return value;
 }
 
-int* fillPoly(SDL_Surface* image_surface, int* Case)
+void fillPoly(SDL_Surface* image_surface, int* Case)
 {
     int width = image_surface->w;
     int height = image_surface->h;
@@ -137,5 +386,4 @@ int* fillPoly(SDL_Surface* image_surface, int* Case)
             i+=width;
         }   
     }
-    return Case;
 }
