@@ -215,7 +215,7 @@ int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface)
 {
     int w = image_surface->w;
     int h = image_surface->h;
-    int* map = calloc(sizeof(int),w*h);
+    int* map = calloc(w*h,sizeof(int));
     //Formating an array of Point
     ///////////////////////////////////////////////////////////
     Point points[nb_points];
@@ -235,22 +235,22 @@ int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface)
     double norm;
     for(size_t i = 0; i<nb_points-1; i++)
     {
-        vectLine[0] = (double)(points[i].X - points[i+1].X);
+        /*vectLine[0] = (double)(points[i].X - points[i+1].X);
         vectLine[1] = (double)(points[i].Y - points[i+1].Y);
         vectorthoG[0] = vectLine[1];
         vectorthoG[1] = (-1)*vectLine[0];
         norm = sqrt(vectorthoG[0]*vectorthoG[0] + vectorthoG[1]*vectorthoG[1]);
         vectorthoN[0] = vectorthoG[0]/norm;
-        vectorthoN[1] = vectorthoG[1]/norm;
+        vectorthoN[1] = vectorthoG[1]/norm;*/
         bresenham(points[i], points[i+1], map, w);
     }
-    vectLine[0] = points[0].X - points[nb_points-1].X;
+    /*vectLine[0] = points[0].X - points[nb_points-1].X;
     vectLine[1] = points[0].Y - points[nb_points-1].Y;
     vectorthoG[0] = vectLine[1];
     vectorthoG[1] = (-1)*vectLine[0];
     norm = sqrt(vectorthoG[0]*vectorthoG[0] + vectorthoG[1]*vectorthoG[1]);
     vectorthoN[0] = vectorthoG[0]/norm;
-    vectorthoN[1] = vectorthoG[1]/norm;
+    vectorthoN[1] = vectorthoG[1]/norm;*/
     bresenham(points[0], points[nb_points-1], map, w);
     return map;
 }
@@ -320,25 +320,15 @@ int checkFormat(SDL_Surface* image_surface, int* Case)
 int isInPoly(int pixel,int* Case,int width)
 {
     int count = 0;
-    int isprev = 0;
-    for(int i = 1; i<width; i++)
+    for(int i = 0; i<width; i++)
     {
         if(Case[pixel+i] == 1)
         {
             count+=1;
-	        isprev += 1;
         }
-	else
-	{
-		isprev = 0;
-	}
-	if(isprev>=4)
-	{
-		return -1;
-	}
     }
 
-    if(count%2 != 0)
+    if(count%2 != 0 && count<5)
     {
         return 0;
     }
@@ -358,10 +348,10 @@ int fillLine(SDL_Surface* image_surface, int* Case, int index)
     {
         //Case[index] = 1;
         line = index / width;
-        Case[column + line*width] = 1;
+        Case[column + line*width] = 2;
         //pixel = get_pixel(image_surface, column, line);
-        pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
-        put_pixel(image_surface, column, line, pixel);
+        //pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
+        //put_pixel(image_surface, column, line, pixel);
     }
     return value;
 }
