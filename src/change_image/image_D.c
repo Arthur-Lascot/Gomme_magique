@@ -796,20 +796,20 @@ SDL_Surface* surface_to_image_ave(SDL_Surface* surface)
 }
 SDL_Surface* resize(SDL_Surface* surface, size_t newx, size_t newy)             
 {                                                                               
-      SDL_Surface* newsurface=                                                    
-              SDL_CreateRGBSurface(0,newx,newy,32,0,0,0,0);                       
+      SDL_Surface* newsurface=
+	  		SDL_CreateRGBSurface(0,newx,newy,32,0,0,0,0);                       
+
+      Uint32 *pixels = surface->pixels;
+      size_t oldx = surface->w;
+      size_t oldy = surface->h;
+      Uint32 *newpixels = newsurface->pixels;
                                                                                   
-      Uint32 *pixels = surface->pixels;                                           
-      size_t oldx = surface->w;                                                   
-      size_t oldy = surface->h;                                                   
-      Uint32 *newpixels = newsurface->pixels;                                     
-                                                                                  
-      float ratiox = (float)oldx / newx;                                          
-      float ratioy = (float)oldy / newy;                                          
+      float ratiox = (float)oldx / newx;
+      float ratioy = (float)oldy / newy;
       //printf("x%f  y%f\n", ratiox, ratioy);                                     
-                                                                                  
+
       for (size_t y = 0; y < newy; y++)                                           
-      {                                                                           
+      {  
           for (size_t x = 0; x < newx; x++)                                       
           {                                                                       
               newpixels[get_index(x,y,newx)] =                                    

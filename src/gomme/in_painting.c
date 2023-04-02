@@ -62,7 +62,7 @@ double data_term()
     return 1.0;
 }
 
-/// @warning /!\ double type not sure /!\
+/// @warning ! double type not sure !
 /// @brief Compute the distance between  psi of p  and  psi of q
 /// @param surface The image sdl surface's
 /// @param p Point with the best P(p)

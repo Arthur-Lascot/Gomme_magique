@@ -7,8 +7,9 @@
 void create_image(char* filename,Inter* inter)
 {
     SDL_Surface* surfaceOri= IMG_Load(filename);
-    surface=SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888,0);
-    surface=resize(surface,400,530);
+	SDL_Surface *surface = surfaceOri;
+	//surface = SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888, 0);
+	//surface=resize(surface,400,530);
     SDL_SaveBMP(surface, "image.png");
     SDL_Surface* surface1=surface_to_image_mat(surface);
     SDL_SaveBMP(surface1, "image1.png");
@@ -24,7 +25,9 @@ void create_image(char* filename,Inter* inter)
 void on_fchose_image(GtkButton *button, gpointer user_data)
 {
 	Inter* inter =user_data;
-	//active another button
+	inter->LP = malloc(20 * sizeof(int));
+	inter->len = 0;
+	// active another button
 	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs2),TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs1),TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bse),TRUE);
@@ -117,8 +120,15 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		surface = inter->surfaceOri;
 		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
 		int* map = drawBorder(inter->LP, inter->len, surface);
-		drawSide(surface,map);
-		printf("drawSide est passe\n");
+		fillPoly(surface, map);
+		drawSide(surface, map);
+		SDL_SaveBMP(surface, "image4.png");
+		GdkPixbuf *pix = gdk_pixbuf_new_from_file("image4.png",NULL);
+		if(pix!=NULL)
+		{
+			gtk_image_set_from_pixbuf(inter->Gimage,pix);
+		}
+		printf("Test validé");
 		free(map);
 		SDL_FreeSurface(surface);	
 	}
@@ -149,8 +159,12 @@ void on_click(GtkButton *button, gpointer user_data)
 	}
 	int x1,y1;
 	gtk_widget_get_pointer(GTK_WIDGET(inter->Gimage),&x1,&y1);
-	printf("%i %i\n",x1,y1);
+	//printf("%i %i\n",x1,y1);
 	inter->LP[inter->len*2]=x1;
 	inter->LP[inter->len*2+1]=y1;
+	//printf("x1 = %d\n y1 = %d\n", (inter->LP[inter->len * 2]), 
+	//	(inter->LP[inter->len * 2 + 1]));
 	inter->len++;
+	//inter->LP = realloc(inter->LP, ((inter->len)*2 + 2) * sizeof(int));
+	
 }
