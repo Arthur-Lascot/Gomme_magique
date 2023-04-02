@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 #include "../change_image/image_D.h"
-/*#include "../STP/selection_to_pixel.h"*/
+#include "../STP/selection_to_pixel.h"
 #include "interface.h"
 
 
@@ -134,9 +134,9 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		if(inter->image==2)
 			surface=inter->surface2;
 		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
-		/*int* map = drawBorder(inter->LP, inter->len, surface);
+		int* map = drawBorder(inter->LP, inter->len, surface);
 		drawSide(surface,map);
-		free(map);*/
+		free(map);
 		SDL_FreeSurface(surface);	
 	}
 }
