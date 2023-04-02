@@ -28,7 +28,7 @@
         </child>
         <child>
           <object class="GtkButton" id="si3">
-            <property name="label" translatable="yes">simplification 3</property>
+            <property name="label" translatable="yes">Fin du choix des pixels</property>
             <property name="width-request">100</property>
             <property name="height-request">80</property>
             <property name="visible">True</property>
