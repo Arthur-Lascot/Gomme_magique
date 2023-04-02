@@ -57,9 +57,15 @@ double conf(int pixel, double* C, int w, int h)
 /// @warning TODO
 /// @brief Compute data term, D(p) in math formula
 /// @return data term
-double data_term()
+double data_term(SDL_Surface *surface, int p, int *map)
 {
-    return 1.0;
+    //sobel->gradient->sous-vecteur orthogonal . np (valeur absolue)  /255
+    const size_t alpha = 255;
+    int grad[2];
+    get_sobel(surface,p,grad);
+    //orthogonal_de_grad()
+    np = get_np();
+    return 1.0;//FAKE
 }
 
 /// @warning ! double type not sure !
