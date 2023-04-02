@@ -30,3 +30,4 @@ clean :
 	$(RM) src/*.o
 	$(RM) src/*/*.o
 	$(RM) */*.d
+	$(RM) *.png

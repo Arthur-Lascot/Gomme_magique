@@ -6,14 +6,15 @@
 
 void create_image(char* filename,Inter* inter)
 {
-    SDL_Surface* surface= IMG_Load(filename);
-    surface=SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888,0);
+    SDL_Surface* surfaceOri= IMG_Load(filename);
+    surface=SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888,0);
     surface=resize(surface,400,530);
     SDL_SaveBMP(surface, "image.png");
     SDL_Surface* surface1=surface_to_image_mat(surface);
     SDL_SaveBMP(surface1, "image1.png");
     SDL_Surface* surface2=surface_to_image_mat2(surface);
     SDL_SaveBMP(surface2, "image2.png");
+	inter->surfaceOri = surfaceOri;
     inter->surface=surface;
     inter->surface1=surface1;
     inter->surface2=surface2;
@@ -113,12 +114,7 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 	if (inter->len>=3)
 	{
 		SDL_Surface* surface;
-		if(inter->image==0)
-			surface=inter->surface;
-		if(inter->image==1)
-			surface=inter->surface1;
-		if(inter->image==2)
-			surface=inter->surface2;
+		surface = inter->surfaceOri;
 		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
 		int* map = drawBorder(inter->LP, inter->len, surface);
 		drawSide(surface,map);
