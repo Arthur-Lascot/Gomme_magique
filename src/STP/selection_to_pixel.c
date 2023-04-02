@@ -31,6 +31,7 @@ void bresenham(Point a, Point b, int* map, int w)
                         dy = dy * 2;
                         while((x1)!=x2)
                         {
+                            puts("line 34");
                             *(map+x1+(y1*w)) = 1;
                             x1++;
                             e = e - dy;
@@ -48,6 +49,7 @@ void bresenham(Point a, Point b, int* map, int w)
                         dy = dy * 2;
                         while((y1)!=y2)
                         {
+                            puts("line 52");
                             *(map+x1+(y1*w)) = 1;
                             y1++;
                             e = e - dx;
@@ -68,6 +70,7 @@ void bresenham(Point a, Point b, int* map, int w)
                         dy = dy * 2;
                         while((x1)!=x2)
                         {
+                            puts("line 73");
                             *(map+x1+(y1*w)) = 1;
                             x1++;
                             e = e + dy;
@@ -85,6 +88,7 @@ void bresenham(Point a, Point b, int* map, int w)
                         dy = dy * 2;
                         while((y1)!=y2)
                         {
+                            puts("line 91");
                             *(map+x1+(y1*w)) = 1;
                             y1--;
                             e = e + dx;
@@ -101,6 +105,7 @@ void bresenham(Point a, Point b, int* map, int w)
             {
                 while(x1!=x2)
                 {
+                    puts("line 108");
                     *(map+x1+(y1*w)) = 1;
                     x1++;
                 }
@@ -119,6 +124,7 @@ void bresenham(Point a, Point b, int* map, int w)
                         dy = dy * 2;
                         while((x1)!=x2)
                         {
+                            puts("line 127");
                             *(map+x1+(y1*w)) = 1;
                             x1--;
                             e = e + dy;
@@ -136,6 +142,7 @@ void bresenham(Point a, Point b, int* map, int w)
                         dy = dy * 2;
                         while((y1)!=y2)
                         {
+                            puts("line 145");
                             *(map+x1+(y1*w)) = 1;
                             y1++;
                             e = e + dx;
@@ -156,6 +163,7 @@ void bresenham(Point a, Point b, int* map, int w)
                         dy = dy * 2;
                         while((x1)!=x2)
                         {
+                            puts("line 166");
                             *(map+x1+(y1*w)) = 1;
                             x1--;
                             e = e - dy;
@@ -173,6 +181,7 @@ void bresenham(Point a, Point b, int* map, int w)
                         dy = dy * 2;
                         while((y1)!=y2)
                         {
+                            puts("line 184");
                             *(map+x1+(y1*w)) = 1;
                             y1--;
                             e = e - dx;
@@ -189,6 +198,7 @@ void bresenham(Point a, Point b, int* map, int w)
             {
                 while(x1 != x2)
                 {
+                    puts("line 201");
                     *(map+x1+(y1*w)) = 1;
                     x1--;
                 }
@@ -203,6 +213,7 @@ void bresenham(Point a, Point b, int* map, int w)
             {
                 while(y1 != y2)
                 {
+                    puts("line 216");
                     *(map+x1+(y1*w)) = 1;
                     y1++;
                 }
@@ -211,6 +222,7 @@ void bresenham(Point a, Point b, int* map, int w)
             {
                 while(y1 != y2)
                 {
+                    puts("line 225");
                     *(map+x1+(y1*w)) = 1;
                     y1--;
                 }
