@@ -207,6 +207,14 @@ void bresenham(Point a, Point b, int* map, int w)
                     y1++;
                 }
             }
+            else
+            {
+                while(y1 != y2)
+                {
+                    *(map+x1+(y1*w)) = 1;
+                    y1--;
+                }
+            }
         }
     }
 }
