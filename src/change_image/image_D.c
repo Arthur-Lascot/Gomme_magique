@@ -629,10 +629,10 @@ SDL_Surface* surface_to_image_mat(SDL_Surface* surface)
 	{
 		//this is too change image 
 		mat_to_image_fl(pcopy,format,w,h,25);
-		if(mat_to_image(pcopy,format,w,h,max_DIF,DIFF))
+		/*if(mat_to_image(pcopy,format,w,h,max_DIF,DIFF))
 		{
 			break;
-		}
+		}*/
 	}
 	for(int i=0;i<100;i++) 
 	{

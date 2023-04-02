@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 #include "../change_image/image_D.h"
-#include "../STP/selection_to_pixel.h"
+/*#include "../STP/selection_to_pixel.h"*/
 #include "interface.h"
 
 
@@ -10,13 +10,15 @@ void create_image(char* filename,Inter* inter)
     surface=SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888,0);
     surface=resize(surface,400,530);
     SDL_SaveBMP(surface, "image.png");
-    SDL_Surface* surface1=surface_to_image_mat(surface);
-    SDL_SaveBMP(surface1, "image1.png");
-    SDL_Surface* surface2=surface_to_image_mat2(surface);
-    SDL_SaveBMP(surface2, "image2.png");
+    if(inter->surface!=NULL)
+	    SDL_FreeSurface(inter->surface);
+    if(inter->surface1!=NULL)
+	    SDL_FreeSurface(inter->surface1);
+    if(inter->surface2!=NULL)
+	    SDL_FreeSurface(inter->surface2);
     inter->surface=surface;
-    inter->surface1=surface1;
-    inter->surface2=surface2;
+    inter->surface1=NULL;
+    inter->surface2=NULL;
 }
 
 //for the chose buttom
@@ -73,6 +75,12 @@ void on_sim_1(GtkButton *button, gpointer user_data)
 	{
 		inter->usless=1;
 	}
+	if(inter->surface1==NULL)
+	{
+    		SDL_Surface* surface1=surface_to_image_mat(inter->surface);
+   		SDL_SaveBMP(surface1, "image1.png");
+    		inter->surface1=surface1;
+	}
 	GdkPixbuf *pix = gdk_pixbuf_new_from_file("image1.png",NULL);
 	inter->image=1;
 	if(pix!=NULL)
@@ -89,6 +97,12 @@ void on_sim_2(GtkButton *button, gpointer user_data)
 	if(button!=NULL)
 	{
 		inter->usless=1;
+	}
+	if(inter->surface2==NULL)
+	{
+    		SDL_Surface* surface2=surface_to_image_mat2(inter->surface);
+    		SDL_SaveBMP(surface2, "image2.png");
+    		inter->surface2=surface2;
 	}
 	GdkPixbuf *pix = gdk_pixbuf_new_from_file("image2.png",NULL);
 	if(pix!=NULL)
@@ -120,9 +134,9 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		if(inter->image==2)
 			surface=inter->surface2;
 		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
-		int* map = drawBorder(inter->LP, inter->len, surface);
+		/*int* map = drawBorder(inter->LP, inter->len, surface);
 		drawSide(surface,map);
-		free(map);
+		free(map);*/
 		SDL_FreeSurface(surface);	
 	}
 }

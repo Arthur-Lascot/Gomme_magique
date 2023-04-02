@@ -1,4 +1,4 @@
-void inPainting(SDL_Surface surface, int* map)
+/*void inPainting(SDL_Surface surface, int* map)
 {
     int w = surface->w;
     int h = surface->h;
@@ -10,4 +10,4 @@ void inPainting(SDL_Surface surface, int* map)
         else
             C[i] = 0;
     }
-}
+}*/
