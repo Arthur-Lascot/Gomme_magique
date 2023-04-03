@@ -16,6 +16,7 @@ typedef struct Inter
     GtkImage* Gimage;
     int* LP;
     size_t len;
+    SDL_Surface* surfaceOri;
     SDL_Surface* surface;
     SDL_Surface* surface1;
     SDL_Surface* surface2;

@@ -7,14 +7,15 @@
 #include <SDL2/SDL_image.h>
 #include <math.h>
 
-void bresenham(Point a, Point b, int* map, int w)
+void bresenham(Point *a, Point *b, int* map, int w)
 {
-    int dx = b.X - a.X;
-    int dy = b.Y - a.Y;
-    int x1 = a.X;
-    int y1 = a.Y;
-    int x2 = b.X;
-    int y2 = b.Y;
+    int dx = b->X - a->X;
+    int dy = b->Y - a->Y;
+    int x1 = a->X;
+    int y1 = a->Y;
+    int x2 = b->X;
+    int y2 = b->Y;
+    printf("x1 = %d\ny1 = %d\nx2 = %d\ny2 = %d\n",x1,y1,x2,y2);
 
     if(dx!=0)
     {
@@ -88,7 +89,7 @@ void bresenham(Point a, Point b, int* map, int w)
                             *(map+x1+(y1*w)) = 1;
                             y1--;
                             e = e + dx;
-                            if(e < 0)
+                            if(e > 0)
                             {
                                 x1++;
                                 e = e + dy;
@@ -122,7 +123,7 @@ void bresenham(Point a, Point b, int* map, int w)
                             *(map+x1+(y1*w)) = 1;
                             x1--;
                             e = e + dy;
-                            if(e < 0)
+                            if(e >= 0)
                             {
                                 y1++;
                                 e = e + dx;
@@ -139,7 +140,7 @@ void bresenham(Point a, Point b, int* map, int w)
                             *(map+x1+(y1*w)) = 1;
                             y1++;
                             e = e + dx;
-                            if(e < 0)
+                            if(e <= 0)
                             {
                                 x1--;
                                 e = e + dy;
@@ -159,7 +160,7 @@ void bresenham(Point a, Point b, int* map, int w)
                             *(map+x1+(y1*w)) = 1;
                             x1--;
                             e = e - dy;
-                            if(e < 0)
+                            if(e >= 0)
                             {
                                 y1--;
                                 e = e + dx;
@@ -176,7 +177,7 @@ void bresenham(Point a, Point b, int* map, int w)
                             *(map+x1+(y1*w)) = 1;
                             y1--;
                             e = e - dx;
-                            if(e < 0)
+                            if(e >= 0)
                             {
                                 x1--;
                                 e = e + dy;
@@ -207,8 +208,17 @@ void bresenham(Point a, Point b, int* map, int w)
                     y1++;
                 }
             }
+            else
+            {
+                while(y1 != y2)
+                {
+                    *(map+x1+(y1*w)) = 1;
+                    y1--;
+                }
+            }
         }
     }
+    *(map+x1+(y1*w)) = 1;
 }
 
 int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface)
@@ -218,40 +228,30 @@ int* drawBorder(int* raw_points, size_t nb_points, SDL_Surface* image_surface)
     int* map = calloc(w*h,sizeof(int));
     //Formating an array of Point
     ///////////////////////////////////////////////////////////
-    Point points[nb_points];
+    /*Point **points = malloc(sizeof(int) * nb_points);
     for(size_t i = 0; i<nb_points*2; i+=2)
     {
-         points[i].X = *(raw_points + i);
-         points[i].Y = *(raw_points + i + 1);
-         points[i].nb_link = 0;
-         (points[i].link)[0] = NULL;
-         (points[i].link)[1] = NULL;
-    }
-    free(raw_points);
+        points[i]->X = *(raw_points + i);
+        points[i]->Y = *(raw_points + i + 1);
+    }*/
     //////////////////////////////////////////////////////////
-    double vectLine[2];
-    double vectorthoG[2];
-    double vectorthoN[2];
-    double norm;
+    ///////////////////////////////////////////////////////////
+    Point **points = malloc(sizeof(Point *) * nb_points);
+    for(size_t i = 0; i<nb_points; i++)
+    {
+        points[i] = malloc(sizeof(Point));
+        points[i]->X = *(raw_points + i*2);
+        points[i]->Y = *(raw_points + i*2 + 1);
+    }
+    //////////////////////////////////////////////////////////
     for(size_t i = 0; i<nb_points-1; i++)
     {
-        /*vectLine[0] = (double)(points[i].X - points[i+1].X);
-        vectLine[1] = (double)(points[i].Y - points[i+1].Y);
-        vectorthoG[0] = vectLine[1];
-        vectorthoG[1] = (-1)*vectLine[0];
-        norm = sqrt(vectorthoG[0]*vectorthoG[0] + vectorthoG[1]*vectorthoG[1]);
-        vectorthoN[0] = vectorthoG[0]/norm;
-        vectorthoN[1] = vectorthoG[1]/norm;*/
         bresenham(points[i], points[i+1], map, w);
     }
-    /*vectLine[0] = points[0].X - points[nb_points-1].X;
-    vectLine[1] = points[0].Y - points[nb_points-1].Y;
-    vectorthoG[0] = vectLine[1];
-    vectorthoG[1] = (-1)*vectLine[0];
-    norm = sqrt(vectorthoG[0]*vectorthoG[0] + vectorthoG[1]*vectorthoG[1]);
-    vectorthoN[0] = vectorthoG[0]/norm;
-    vectorthoN[1] = vectorthoG[1]/norm;*/
     bresenham(points[0], points[nb_points-1], map, w);
+    /*for (size_t i = 0; i < nb_points; i++)
+        free(points(i));//besoin de crochet
+    free(points);*/
     return map;
 }
 
@@ -268,6 +268,14 @@ void drawSide(SDL_Surface* image_surface,int* Case)
     for(int i = 0; i<width*height; i++)
     {
         if(*(Case+i) == 1)
+        {
+            line = i/width;
+            column = i%width;
+            pixel = get_pixel(image_surface,column,line);
+            pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
+            put_pixel(image_surface, column, line, pixel);
+        }
+        if(*(Case+i) == 2)
         {
             line = i/width;
             column = i%width;
@@ -320,14 +328,22 @@ int checkFormat(SDL_Surface* image_surface, int* Case)
 int isInPoly(int pixel,int* Case,int width)
 {
     int count = 0;
+    int enchainement = 0;
     for(int i = 0; i<width; i++)
     {
         if(Case[pixel+i] == 1)
         {
             count+=1;
+            enchainement += 1;
         }
+        else
+            enchainement = 0;
+        if (enchainement >= 2)
+        {
+            count -= 1;
+        }
+        
     }
-
     if(count%2 != 0 && count<5)
     {
         return 0;
@@ -341,39 +357,85 @@ int fillLine(SDL_Surface* image_surface, int* Case, int index)
     int width = image_surface->w;
     int line;
     int column;
-    Uint32 pixel;
+    //Uint32 pixel;
     column = index%width;
     int value = isInPoly(index, Case, width-column);
     if(value==0)
     {
         //Case[index] = 1;
         line = index / width;
-        Case[column + line*width] = 2;
+        if(Case[column + line*width]!=1) {
+            Case[column + line*width] = 2;
+            //printf("x = %d\ty = %d\n", column, line);
+        }
+
         //pixel = get_pixel(image_surface, column, line);
         //pixel = SDL_MapRGB(image_surface->format, 255, 0, 0);
         //put_pixel(image_surface, column, line, pixel);
     }
     return value;
 }
-
+int isLineValid(int* Case, int w, int i)
+{
+    int max;
+    int enchainement = 0;
+    int count = 0;
+   
+    max = i + w;
+    for (int j = i; j < max; j++) {
+        if(Case[i+j] == 1)
+        {
+            count+=1;
+            enchainement += 1;
+        }
+        else {
+            enchainement = 0;
+        }
+        if (enchainement > 1)
+        {
+            count -= 1;
+        }
+    }
+    return count > 1;
+}
 void fillPoly(SDL_Surface* image_surface, int* Case)
 {
     int width = image_surface->w;
     int height = image_surface->h;
-
     /*if(checkFormat(image_surface, Case)!=0)
     {
 	SDL_FreeSurface(image_surface);
         errx(1, "checkFormat : Pixel selection format is wrong");
     }*/
-    int column;
-    for(int i = 0; i<width*height; i+=1)
-    {
-        if(fillLine(image_surface,Case,i)==-1)
+    int max;
+    int count = 0;
+    int test = 1;
+    for(int i = 0; i<width*height; i++)
+    {   
+        if(i%width == 0)
         {
-            column = i%width;
-            i-=column;
-            i+=width;
-        }   
+            max = i + width;
+            for (int j = 0; j+i < max; j++) {
+                if(Case[i+j]!=1)
+                    test = 1;
+                if(Case[i+j]==1 && test == 1) {
+                    count += 1;
+                    test = 0;
+                }
+            }
+            printf("count = %d\n",count);
+            if(count == 1) {
+                puts("je suis utile");
+                i += width - 1;
+                count = 0;
+                test = 1;
+                continue;
+            }
+            count = 0;
+            test = 1;
+        }
+            
+        fillLine(image_surface, Case, i);
+
     }
 }
