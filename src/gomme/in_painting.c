@@ -86,28 +86,63 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
     if (arg[0])
         return __DBL_MAX__;
 
-    int x = arg[1];
-    int y = arg[2];
+    int xq = arg[1];
+    int yq = arg[2];
     
-    int max = (y + PSY_W) * w + (x + PSY_W);
-    for (int i = y*w+x; i < max; i++)
+    int max = (yq + PSY_W) * w + (xq + PSY_W);
+    for (int i = yq*w+xq; i < max; i++)
     {
 
         if (map[i] != 0) // if not in source img
             return __DBL_MAX__;
 
-        line = i/w;
-        column = i%w;
-        pixel = get_pixel(surface,column,line);
 
-        if (i%w == x+PSY_W) // jump line
+        if (i%w == xq+PSY_W) // jump line
             i += w - PSY_W;
     }
-    Uint32 pixel; 
-    int line;
-    int column;
+    int ssd = 0;
+    Uint32 pixelInP;
+    Uint32 pixelInQ;
+    Uint8 r, g, b;
+    int valueP;
+    int valueQ;
+    int linep;
+    int columnp;
+    int lineq;
+    int columnq;
     int offset = (PSY_W - 1) / 2;
-    
+    int arg[3];
+    is_valid(p,w,h,arg);
+    int indexForq = yq*w+xq;
+    int diff;
+    int xp = arg[1];
+    int yp = arg[2];
+    int max = (yp + PSY_W) * w + (xp + PSY_W);
+    for(int i = yp*w+xp; i < max; i++)
+    {
+        if(map[i]==0) // if we are in already filled part of patch
+        {
+            linep = i/w;
+            columnp = i%w;
+            lineq = indexForq/w;
+            columnq = indexForq%w;
+            pixelInP = get_pixel(surface,columnp,linep); //Gettting pixel in patch P
+            pixelInQ = get_pixel(surface,columnq,lineq); //Getting corresponding pixel in patch Q
+	        SDL_GetRGB(pixelInP, surface->format, &r, &g, &b);
+            valueP = r + g + b; //Value of pixel P
+            SDL_GetRGB(pixelInQ, surface->format, &r, &g, &b);
+            valueQ = r + g + b; //Value of pixel Q
+            diff = valueP - valueQ;
+            ssd += diff * diff; //square of sum difference
+        }
+        if (i%w == xp+PSY_W) // jump line
+        {
+            i += w - PSY_W;
+            indexForq += w -PSY_W;
+        }
+        indexForq++;
+    }
+    return ssd;
 }
 
 /// @brief Set the new borders in map at one larger pixel side around
