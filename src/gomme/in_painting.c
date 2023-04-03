@@ -100,12 +100,12 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
         if (i%w == xq+PSY_W) // jump line
             i += w - PSY_W;
     }
-    int ssd = 0;
+    double ssd = 0;
     Uint32 pixelInP;
     Uint32 pixelInQ;
     Uint8 r, g, b;
-    int valueP;
-    int valueQ;
+    double valueP;
+    double valueQ;
     int linep;
     int columnp;
     int lineq;
