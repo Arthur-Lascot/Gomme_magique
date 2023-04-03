@@ -25,7 +25,7 @@ void create_image(char* filename,Inter* inter)
 	
     surfaceOri= IMG_Load(filename);
 	surface = surfaceOri;
-	surface = SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888, 0);
+	//surface = SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888, 0);
 	SDL_SaveBMP(surface, "image.png");
 	// surface=resize(surface,400,530);
 	
@@ -35,7 +35,7 @@ void create_image(char* filename,Inter* inter)
     inter->surface2=NULL;
 }
 
-//for the chose buttom
+//for the chose button
 void on_fchose_image(GtkButton *button, gpointer user_data)
 {
 	Inter* inter=user_data;
@@ -153,9 +153,15 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		{
 			gtk_image_set_from_pixbuf(inter->Gimage,pix);
 		}
-		wait_for_keypressed();
 		printf("Lancement de run_inPainting...\n");
 		run_inPainting(surface, map);
+		printf("InPainting fini, sauvegarde de l'image...\n");
+		SDL_SaveBMP(surface, "image_inPainting.png");
+		pix = gdk_pixbuf_new_from_file("image_inPainting.png",NULL);
+		if(pix!=NULL)
+		{
+			gtk_image_set_from_pixbuf(inter->Gimage,pix);
+		}
 		printf("Test validé\n");
 		free(map);	
 	}

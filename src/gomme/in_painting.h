@@ -14,7 +14,7 @@ double data_term(SDL_Surface *surface, int p, int *map);
 
 double dist_psi(SDL_Surface *surface, int p, int q, int *map);
 
-void update_border(int *map, int x, int y, int w, int h);
+void update_border(SDL_Surface *surface, int *map, int x, int y, int w, int h);
 
 void copy(SDL_Surface *surface, double *C, int *map, int p, int q, double conf_p);
 

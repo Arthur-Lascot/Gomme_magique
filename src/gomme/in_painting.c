@@ -94,6 +94,7 @@ void get_np(int x1, int y1, int x2, int y2, double* np)
     np[0] = ((double)tangente[1])/coeff;
     np[1] = ((double)(-tangente[0]))/coeff;
 }
+
 /// @warning TODO
 /// @brief Compute data term, D(p) in math formula
 /// @return data term
@@ -217,18 +218,18 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
     Uint32 pixelInP;
     Uint32 pixelInQ;
     Uint8 r, g, b;
-    double valueP;
-    double valueQ;
     int linep;
     int columnp;
     int lineq;
     int columnq;
     is_valid(p,w,h,arg);
     int indexForq = yq*w+xq;
-    int diff;
+    double diff;
     int xp = arg[1];
     int yp = arg[2];
     max = (yp + PSY_W) * w + (xp + PSY_W);
+
+    //Uint8 valeurr, valeurg, valeurb;
     for(int i = yp*w+xp; i < max; i++)
     {
         if(map[i]==0) // if we are in already filled part of patch
@@ -240,10 +241,17 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
             pixelInP = get_pixel(surface,columnp,linep); //Gettting pixel in patch P
             pixelInQ = get_pixel(surface,columnq,lineq); //Getting corresponding pixel in patch Q
 	        SDL_GetRGB(pixelInP, surface->format, &r, &g, &b);
-            valueP = r + g + b; //Value of pixel P
+            Uint8 averageP =  0.3*r + 0.59*g + 0.11*b;
+            //valeurr = r;
+            //valeurg = g;
+            //valeurb = b;
             SDL_GetRGB(pixelInQ, surface->format, &r, &g, &b);
-            valueQ = r + g + b; //Value of pixel Q
-            diff = valueP - valueQ;
+            Uint8 averageQ =  0.3*r + 0.59*g + 0.11*b;
+            //valeurr -= r;
+            //valeurg -= g;
+            //valeurb -= b;
+            //diff = sqrt((double)(valeurr * valeurr + valeurg * valeurg + valeurb * valeurb));
+            diff = averageQ - averageP;
             ssd += diff * diff; //square of sum difference
         }
         if (i%w == xp+PSY_W) // jump line
@@ -262,7 +270,7 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
 /// @param y Upper left y coordinate from p in copy() method
 /// @param w Width
 /// @param h Height
-void update_border(int* map, int x, int y, int w, int h)
+void update_border(SDL_Surface *surface, int* map, int x, int y, int w, int h)
 {
     x--;
     y--;
@@ -273,8 +281,12 @@ void update_border(int* map, int x, int y, int w, int h)
         x += max - 1;
     else
         for (int i = 0; i < max; i++) {
-            if (!(map[y * w + x]==0 || x<0 || x+PSY_W>w))
+            if (!(map[y * w + x]==0 || x<0 || x+PSY_W>w)) {
                 map[y * w + x] = 1;
+                Uint32 pixel = SDL_MapRGB(surface->format, 255, 0, 0);
+                put_pixel(surface, x, y, pixel);
+            }
+                
             x++;
         }
     
@@ -282,8 +294,11 @@ void update_border(int* map, int x, int y, int w, int h)
         y += max - 1;
     else
         for (int i = 0; i < max; i++) {
-            if (!(map[y * w + x]==0 || y<0 || y+PSY_W>h))
+            if (!(map[y * w + x]==0 || y<0 || y+PSY_W>h)){
                 map[y * w + x] = 1;
+                Uint32 pixel = SDL_MapRGB(surface->format, 255, 0, 0);
+                put_pixel(surface, x, y, pixel);
+            }
             y++;
         }
     
@@ -291,8 +306,11 @@ void update_border(int* map, int x, int y, int w, int h)
         x -= max - 1;
     else
         for (int i = 0; i < max; i++) {
-            if (!(map[y * w + x]==0 || x<0 || x+PSY_W>w))
+            if (!(map[y * w + x]==0 || x<0 || x+PSY_W>w)){
                 map[y * w + x] = 1;
+                Uint32 pixel = SDL_MapRGB(surface->format, 255, 0, 0);
+                put_pixel(surface, x, y, pixel);
+            }
             x--;
         }
     
@@ -300,8 +318,11 @@ void update_border(int* map, int x, int y, int w, int h)
         return; // y -= max - 1;
     else
         for (int i = 0; i < max; i++) {
-            if (!(map[y * w + x]==0 || y<0 || y+PSY_W>h))
+            if (!(map[y * w + x]==0 || y<0 || y+PSY_W>h)){
                 map[y * w + x] = 1;
+                Uint32 pixel = SDL_MapRGB(surface->format, 255, 0, 0);
+                put_pixel(surface, x, y, pixel);
+            }
             y--;
         }
 }
@@ -351,13 +372,16 @@ void copy(SDL_Surface *surface, double *C, int *map, int p, int q, double conf_p
             put_pixel(surface, pcolumn, pline, pixel);
         }
 
-        if (ip%w == xp+PSY_W) // jump line
+        if (ip%w == xp+PSY_W) { // jump line
             ip += w - PSY_W;
-
-        ip++;
-        iq++;
+            iq += w - PSY_W;
+        }
+        else {
+            ip++;
+            iq++;
+        }
     }
-    update_border(map, xp, yp, w, h);
+    update_border(surface, map, xp, yp, w, h);
 }
 
 /// @brief One step of inPainting algorithm
@@ -379,7 +403,7 @@ void inPainting(SDL_Surface *surface, int* map, int w, int h, double *C, int sta
             tmp_conf = conf(p, C, w, h);
             if (tmp_conf == 0.0)
                 continue;
-            tmp = tmp_conf; // * data_term(surface,p,map);
+            tmp = tmp_conf; //* data_term(surface,p,map);
             if (tmp > max)
             {
                 max = tmp;
@@ -424,8 +448,15 @@ void run_inPainting(SDL_Surface *surface, int* map)
     }
     int not_finished;
     int start = 0;
+    int cptsave = 0;
     do {
+        printf("Lancement d'un patch %d\n", start);
         inPainting(surface, map, w, h, C, start);
+
+        if (cptsave%5 == 0) {
+            SDL_SaveBMP(surface, "image_temp_inPainting.png");
+            printf("Temp img saved\n");
+        }
 
         not_finished = 0;
         for (int i = 0; i < len; i++)
@@ -436,5 +467,6 @@ void run_inPainting(SDL_Surface *surface, int* map)
                 break;
             }
         }
+        cptsave++;
     } while (not_finished);
 }
