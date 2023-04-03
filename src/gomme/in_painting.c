@@ -79,17 +79,26 @@ void get_sobel(SDL_Surface *surface, int point, int *grad)
     
 }
 
+void get_np(int x1, int y1, int x2, int y2, double* np;)
+{
+    int tangente[] = {x2-x1,y1-y2};
+    double coeff = sqrt(tangente[1] * tangente[1] + (-tangente[0])*(-tangente[0]));
+    np[0] = ((double)tangente[1])/coeff;
+    np[1] = ((double)(-tangente[0]))/coeff;
+}
 /// @warning TODO
 /// @brief Compute data term, D(p) in math formula
 /// @return data term
 double data_term(SDL_Surface *surface, int p, int *map)
 {
     //sobel->gradient->sous-vecteur orthogonal . np (valeur absolue)  /255
+    int w = surface->w;
     const size_t alpha = 255;
     int grad[2];
     int gradOGN[2];//orthogonal_de_grad()
+    int np[2]; //normal vector
     int arg[3];
-    is_valid(q,w,h,arg);
+    is_valid(p,w,h,arg);
 
     int x = arg[1] + 1;
     int y = arg[2] + 1;
@@ -111,7 +120,6 @@ double data_term(SDL_Surface *surface, int p, int *map)
                 normMax = norme_tmp;
                 gradOGN[0] = grad[1];
                 gradOGN[1] = -grad[0];
-
             }
         }
 
@@ -119,7 +127,48 @@ double data_term(SDL_Surface *surface, int p, int *map)
         if (i%w == x+(PSY_W-2)) // jump line
             i += w - (PSY_W-2);
     }
-    //np = get_np();
+    /////////////////////////////////////
+    int line = p/w;
+    int column = p%w;
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+    if(map[p-w-1] == 1)
+    {
+        x1 = column - 1;
+        y1 = line - 1;
+        if(map[p-1] == 1)
+        {
+            x1 = column - 1;
+            y1 = line; 
+        }
+        if(map[p-w] == 1)
+        {
+            x1 = column;
+            y1 = line - 1; 
+        }
+    }         //Tryiny to find the 2 nearest point of P
+
+    if(map[p+w+1] == 1)
+    {
+        x2 = column + 1;
+        yx = line + 1;
+        if(map[p+w] == 1)
+        {
+            x1 = column;
+            y1 = line + 1; 
+        }
+        if(map[p+1] == 1)
+        {
+            x1 = column + 1;
+            y1 = line; 
+        }
+    }
+
+    get_np(x1,y1,x2,y2,np);
+
+    ///////////////////////////////////////////
     return 1.0;//FAKE
 }
 
