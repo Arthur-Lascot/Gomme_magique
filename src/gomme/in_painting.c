@@ -54,6 +54,31 @@ double conf(int pixel, double* C, int w, int h)
     return confidence;
 }
 
+void get_sobel(SDL_Surface *surface, int point, int *grad)
+{
+    int w = surface->w;
+    int point_mat = 0;
+    point -= w + 1;
+    Uint8 r, g, b;
+    grad[0] = 0;
+    grad[1] = 0;
+    for (size_t i = 0; i < 3; i++)
+    {
+        for (size_t j = 0; j < 3; j++)
+        {
+            Uint32 pixel = get_pixel(surface, point % w, point / w);
+            SDL_GetRGB(pixel, surface->format, r, g, b);
+            int tmprgb = (r + g + b) / 3;
+            grad[0] += tmprgb * MATX[point_mat];
+            grad[1] += tmprgb * MATY[point_mat];
+            point++;
+            point_mat++;
+        }
+        point += w - 4;
+    }
+    
+}
+
 /// @warning TODO
 /// @brief Compute data term, D(p) in math formula
 /// @return data term
@@ -64,8 +89,8 @@ double data_term(SDL_Surface *surface, int p, int *map)
     int grad[2];
     get_sobel(surface,p,grad);
     //orthogonal_de_grad()
-    np = get_np();
-    return 1.0;//FAKE
+    //np = get_np();
+    return map[p]?1.0/alpha:0.0;//FAKE
 }
 
 /// @warning ! double type not sure !
@@ -110,14 +135,12 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
     int columnp;
     int lineq;
     int columnq;
-    int offset = (PSY_W - 1) / 2;
-    int arg[3];
     is_valid(p,w,h,arg);
     int indexForq = yq*w+xq;
     int diff;
     int xp = arg[1];
     int yp = arg[2];
-    int max = (yp + PSY_W) * w + (xp + PSY_W);
+    max = (yp + PSY_W) * w + (xp + PSY_W);
     for(int i = yp*w+xp; i < max; i++)
     {
         if(map[i]==0) // if we are in already filled part of patch
@@ -278,8 +301,11 @@ void inPainting(SDL_Surface *surface, int* map)
         if(map[p]==1)// points of the edge
         {
             tmp_conf = conf(p, C, w, h);
-            tmp = tmp_conf; //* data_term() TODO
-            if (tmp>max) {
+            if (tmp_conf == 0.0)
+                continue;
+            tmp = tmp_conf * data_term(surface,p,map);
+            if (tmp > max)
+            {
                 max = tmp;
                 max_p = p;
                 max_conf = tmp_conf;
