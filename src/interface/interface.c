@@ -3,7 +3,7 @@
 #include "../STP/selection_to_pixel.h"
 #include "interface.h"
 #include "../gomme/in_painting.h"
-
+#include "../STP/tools.h"
 
 void create_image(char* filename,Inter* inter)
 {
@@ -153,6 +153,7 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		{
 			gtk_image_set_from_pixbuf(inter->Gimage,pix);
 		}
+		wait_for_keypressed();
 		printf("Lancement de run_inPainting...\n");
 		run_inPainting(surface, map);
 		printf("Test validé\n");
