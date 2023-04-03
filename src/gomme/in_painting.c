@@ -2,7 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include "in_painting.h"
 #include "../STP/tools.h"
-
+#include <math.h>
 /// @brief Set true in ret[0] if the entier area psi is in the bound of image AND set x in ret[1] and y in ret[2] (the upper left corner, not the center)
 /// @param pixel 
 /// @param w Width
@@ -87,10 +87,40 @@ double data_term(SDL_Surface *surface, int p, int *map)
     //sobel->gradient->sous-vecteur orthogonal . np (valeur absolue)  /255
     const size_t alpha = 255;
     int grad[2];
-    get_sobel(surface,p,grad);
-    //orthogonal_de_grad()
+    int gradOGN[2];//orthogonal_de_grad()
+    int arg[3];
+    is_valid(q,w,h,arg);
+
+    int x = arg[1] + 1;
+    int y = arg[2] + 1;
+    int max = (y + PSY_W - 2) * w + (x + PSY_W - 2);
+
+    double normMax = 0;
+    double norme_tmp;
+    for (int i = y*w+x; i < max; i++)
+    {
+
+        if (map[i] == 0 && map[i-w-1] == 0 && map[i-w] == 0 && map[i-w+1] == 0 
+            && map[i+1] == 0 && map[i+w+1] == 0 && map[i+w] == 0 
+            && map[i+w-1] == 0 && map[i-1] == 0) 
+        {
+            get_sobel(surface,p,grad);
+            norme_tmp = sqrt(grad[0] * grad[0] + grad[1] * grad[1]);
+            if(norme_tmp > normMax)
+            {
+                normMax = norme_tmp;
+                gradOGN[0] = grad[1];
+                gradOGN[1] = -grad[0];
+
+            }
+        }
+
+
+        if (i%w == x+(PSY_W-2)) // jump line
+            i += w - (PSY_W-2);
+    }
     //np = get_np();
-    return map[p]?1.0/alpha:0.0;//FAKE
+    return 1.0;//FAKE
 }
 
 /// @warning ! double type not sure !
