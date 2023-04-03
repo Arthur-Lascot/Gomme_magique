@@ -8,16 +8,18 @@ void create_image(char* filename,Inter* inter)
 {
     SDL_Surface* surfaceOri= IMG_Load(filename);
 	SDL_Surface *surface = surfaceOri;
-	//surface = SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888, 0);
+	surface = SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888, 0);
 	//surface=resize(surface,400,530);
     SDL_SaveBMP(surface, "image.png");
-	inter->surfaceOri = surfaceOri;
+	if(inter->surfaceOri!=NULL)
+		SDL_FreeSurface(inter->surfaceOri);
     if(inter->surface!=NULL)
 	    SDL_FreeSurface(inter->surface);
     if(inter->surface1!=NULL)
 	    SDL_FreeSurface(inter->surface1);
     if(inter->surface2!=NULL)
 	    SDL_FreeSurface(inter->surface2);
+	inter->surfaceOri = surfaceOri;
     inter->surface=surface;
     inter->surface1=NULL;
     inter->surface2=NULL;
@@ -143,8 +145,7 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 			gtk_image_set_from_pixbuf(inter->Gimage,pix);
 		}
 		printf("Test validé");
-		free(map);
-		SDL_FreeSurface(surface);	
+		free(map);	
 	}
 }
 
