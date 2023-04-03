@@ -3,13 +3,6 @@
 
 #define PSY_W 9
 
-#define MATX {  1, 0, -1,
-                2, 0, -2,
-                1, 0, -1}
-
-#define MATY {  1, 2, 1,
-                0, 0, 0,
-                -1, -2, -1}
 
 void is_valid(int pixel, int w, int h, int *ret);
 
@@ -25,6 +18,8 @@ void update_border(int *map, int x, int y, int w, int h);
 
 void copy(SDL_Surface *surface, double *C, int *map, int p, int q, double conf_p);
 
-void inPainting(SDL_Surface *surface, int *map);
+void inPainting(SDL_Surface *surface, int *map, int w, int h, double *C, int start);
+
+void run_inPainting(SDL_Surface *surface, int *map);
 
 #endif

@@ -56,6 +56,14 @@ double conf(int pixel, double* C, int w, int h)
 
 void get_sobel(SDL_Surface *surface, int point, int *grad)
 {
+    int matX[] = {1, 0, -1,
+                  2, 0, -2,
+                  1, 0, -1};
+
+    int matY[] = {1, 2, 1,
+                  0, 0, 0,
+                  -1, -2, -1};
+
     int w = surface->w;
     int point_mat = 0;
     point -= w + 1;
@@ -67,10 +75,10 @@ void get_sobel(SDL_Surface *surface, int point, int *grad)
         for (size_t j = 0; j < 3; j++)
         {
             Uint32 pixel = get_pixel(surface, point % w, point / w);
-            SDL_GetRGB(pixel, surface->format, r, g, b);
+            SDL_GetRGB(pixel, surface->format, &r, &g, &b);
             int tmprgb = (r + g + b) / 3;
-            grad[0] += tmprgb * MATX[point_mat];
-            grad[1] += tmprgb * MATY[point_mat];
+            grad[0] += tmprgb * matX[point_mat];
+            grad[1] += tmprgb * matY[point_mat];
             point++;
             point_mat++;
         }
@@ -79,7 +87,7 @@ void get_sobel(SDL_Surface *surface, int point, int *grad)
     
 }
 
-void get_np(int x1, int y1, int x2, int y2, double* np;)
+void get_np(int x1, int y1, int x2, int y2, double* np)
 {
     int tangente[] = {x2-x1,y1-y2};
     double coeff = sqrt(tangente[1] * tangente[1] + (-tangente[0])*(-tangente[0]));
@@ -93,10 +101,11 @@ double data_term(SDL_Surface *surface, int p, int *map)
 {
     //sobel->gradient->sous-vecteur orthogonal . np (valeur absolue)  /255
     int w = surface->w;
+    int h = surface->h;
     const size_t alpha = 255;
     int grad[2];
     int gradOGN[2];//orthogonal_de_grad()
-    int np[2]; //normal vector
+    double np[2]; //normal vector
     int arg[3];
     is_valid(p,w,h,arg);
 
@@ -153,23 +162,23 @@ double data_term(SDL_Surface *surface, int p, int *map)
     if(map[p+w+1] == 1)
     {
         x2 = column + 1;
-        yx = line + 1;
+        y2 = line + 1;
         if(map[p+w] == 1)
         {
-            x1 = column;
-            y1 = line + 1; 
+            x2 = column;
+            y2 = line + 1; 
         }
         if(map[p+1] == 1)
         {
-            x1 = column + 1;
-            y1 = line; 
+            x2 = column + 1;
+            y2 = line; 
         }
     }
 
     get_np(x1,y1,x2,y2,np);
 
     ///////////////////////////////////////////
-    return 1.0;//FAKE
+    return (gradOGN[0]*np[0]+gradOGN[1]*np[1])/alpha;
 }
 
 /// @warning ! double type not sure !
@@ -354,7 +363,52 @@ void copy(SDL_Surface *surface, double *C, int *map, int p, int q, double conf_p
 /// @brief One step of inPainting algorithm
 /// @param surface The image sdl surface's
 /// @param map Tab of status (0:source, 1:border, 2:target)
-void inPainting(SDL_Surface *surface, int* map)
+void inPainting(SDL_Surface *surface, int* map, int w, int h, double *C, int start)
+{
+    int len = w * h;
+    double tmp;
+    double tmp_conf;
+    double max = 0.0;
+    double max_conf = 0.0;
+    double max_p;
+    // finding the priority values
+    for(int p = start; p<len; p++)
+    {
+        if(map[p]==1)// points of the edge
+        {
+            tmp_conf = conf(p, C, w, h);
+            if (tmp_conf == 0.0)
+                continue;
+            tmp = tmp_conf; // * data_term(surface,p,map);
+            if (tmp > max)
+            {
+                max = tmp;
+                max_p = p;
+                max_conf = tmp_conf;
+            }
+        }
+    }
+
+    //double tmp;
+    double min = __DBL_MAX__;
+    double min_d;
+    
+    for(int q = 0; q<len; q++)
+    {
+        if(map[q]==0) {
+            tmp = dist_psi(surface, max_p, q, map);
+            if (tmp<min) {
+                min = tmp;
+                min_d = q;
+            }
+        }
+    }
+
+    copy(surface, C, map, max_p, min_d, max_conf);
+}
+
+
+void run_inPainting(SDL_Surface *surface, int* map)
 {
     const int w = surface->w;
     const int h = surface->h;
@@ -368,43 +422,19 @@ void inPainting(SDL_Surface *surface, int* map)
         else
             C[i] = 0; // C(pixel) = 0 for pixel in (Omega)
     }
+    int not_finished;
+    int start = 0;
+    do {
+        inPainting(surface, map, w, h, C, start);
 
-    double tmp;
-    double tmp_conf;
-    double max = 0.0;
-    double max_conf = 0.0;
-    double max_p;
-    // finding the priority values
-    for(int p = 0; p<len; p++)
-    {
-        if(map[p]==1)// points of the edge
+        not_finished = 0;
+        for (int i = 0; i < len; i++)
         {
-            tmp_conf = conf(p, C, w, h);
-            if (tmp_conf == 0.0)
-                continue;
-            tmp = tmp_conf * data_term(surface,p,map);
-            if (tmp > max)
-            {
-                max = tmp;
-                max_p = p;
-                max_conf = tmp_conf;
+            if (map[i] != 0) {
+                not_finished = 1;
+                start = i;
+                break;
             }
         }
-    }
-
-    //double tmp;
-    double min = __DBL_MAX__;
-    double min_d;
-    for(int q = 0; q<len; q++)
-    {
-        if(map[q]==0) {
-            tmp = dist_psi(surface, max_p, q, map);
-            if (tmp<min) {
-                min = tmp;
-                min_d = q;
-            }
-        }
-    }
-
-    copy(surface, C, map, max_p, min_d, max_conf);
+    } while (not_finished);
 }

@@ -2,16 +2,19 @@
 #include "../change_image/image_D.h"
 #include "../STP/selection_to_pixel.h"
 #include "interface.h"
+#include "../gomme/in_painting.h"
 
 
 void create_image(char* filename,Inter* inter)
 {
-    SDL_Surface* surfaceOri= IMG_Load(filename);
-	SDL_Surface *surface = surfaceOri;
-	surface = SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888, 0);
-	//surface=resize(surface,400,530);
-    SDL_SaveBMP(surface, "image.png");
-	if(inter->surfaceOri!=NULL)
+	SDL_Surface *surfaceOri;
+	SDL_Surface *surface;
+	inter->surfaceOri = NULL;
+	inter->surface = NULL;
+	inter->surface1 = NULL;
+	inter->surface2 = NULL;
+
+	if (inter->surfaceOri != NULL)
 		SDL_FreeSurface(inter->surfaceOri);
     if(inter->surface!=NULL)
 	    SDL_FreeSurface(inter->surface);
@@ -19,6 +22,13 @@ void create_image(char* filename,Inter* inter)
 	    SDL_FreeSurface(inter->surface1);
     if(inter->surface2!=NULL)
 	    SDL_FreeSurface(inter->surface2);
+	
+    surfaceOri= IMG_Load(filename);
+	surface = surfaceOri;
+	surface = SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888, 0);
+	SDL_SaveBMP(surface, "image.png");
+	// surface=resize(surface,400,530);
+	
 	inter->surfaceOri = surfaceOri;
     inter->surface=surface;
     inter->surface1=NULL;
@@ -117,10 +127,7 @@ void on_sim_2(GtkButton *button, gpointer user_data)
 void on_sim_3(GtkButton *button, gpointer user_data)
 {
 	Inter* inter =user_data;
-	if(inter->LP!=NULL)
-		free(inter->LP);
-	inter->LP = malloc(20 * sizeof(int));
-	inter->len = 0;
+	
 	printf("coucou\n");
 	if(button!=NULL)
 	{
@@ -146,7 +153,9 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		{
 			gtk_image_set_from_pixbuf(inter->Gimage,pix);
 		}
-		printf("Test validé");
+		printf("Lancement de run_inPainting...\n");
+		run_inPainting(surface, map);
+		printf("Test validé\n");
 		free(map);	
 	}
 }
@@ -154,6 +163,10 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 void on_select(GtkButton *button, gpointer user_data)
 {
 	Inter* inter=user_data;
+	if(inter->LP!=NULL)
+		free(inter->LP);
+	inter->LP = malloc(20 * sizeof(int));
+	inter->len = 0;
 	printf("toutoutou\n");
 	if(button!=NULL)
 	{

@@ -423,9 +423,9 @@ void fillPoly(SDL_Surface* image_surface, int* Case)
                     test = 0;
                 }
             }
-            printf("count = %d\n",count);
+            //printf("count = %d\n",count);
             if(count == 1) {
-                puts("je suis utile");
+                //puts("je suis utile");
                 i += width - 1;
                 count = 0;
                 test = 1;
