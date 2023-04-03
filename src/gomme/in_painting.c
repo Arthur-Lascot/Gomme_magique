@@ -88,19 +88,26 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
 
     int x = arg[1];
     int y = arg[2];
-
+    
     int max = (y + PSY_W) * w + (x + PSY_W);
     for (int i = y*w+x; i < max; i++)
     {
+
         if (map[i] != 0) // if not in source img
             return __DBL_MAX__;
+
+        line = i/w;
+        column = i%w;
+        pixel = get_pixel(surface,column,line);
 
         if (i%w == x+PSY_W) // jump line
             i += w - PSY_W;
     }
-
-    //TODO ssd
-    return (double)(p - q);//FAKE
+    Uint32 pixel; 
+    int line;
+    int column;
+    int offset = (PSY_W - 1) / 2;
+    
 }
 
 /// @brief Set the new borders in map at one larger pixel side around

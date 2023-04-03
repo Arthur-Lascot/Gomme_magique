@@ -28,9 +28,7 @@ void create_image(char* filename,Inter* inter)
 //for the chose buttom
 void on_fchose_image(GtkButton *button, gpointer user_data)
 {
-	Inter* inter =user_data;
-	inter->LP = malloc(20 * sizeof(int));
-	inter->len = 0;
+	Inter* inter=user_data;
 	// active another button
 	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs2),TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bs1),TRUE);
@@ -118,7 +116,11 @@ void on_sim_2(GtkButton *button, gpointer user_data)
 }
 void on_sim_3(GtkButton *button, gpointer user_data)
 {
-	Inter* inter=user_data;
+	Inter* inter =user_data;
+	if(inter->LP!=NULL)
+		free(inter->LP);
+	inter->LP = malloc(20 * sizeof(int));
+	inter->len = 0;
 	printf("coucou\n");
 	if(button!=NULL)
 	{
