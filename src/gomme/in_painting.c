@@ -17,7 +17,7 @@ void is_valid(int pixel, int w, int h, int *ret)
     x -= offset;
     y -= offset;
 
-    ret[0] = x<0 || y<0 || x+PSY_W>w || y+PSY_W>h;
+    ret[0] = !(x<0 || y<0 || x+PSY_W>w || y+PSY_W>h);
     ret[1] = x;
     ret[2] = y;
 }
@@ -33,8 +33,8 @@ double conf(int pixel, double* C, int w, int h)
     int arg[3];
     is_valid(pixel,w,h,arg);
 
-    if (arg[0])
-        return 0.0;
+    if (!arg[0])
+        return 2.0;
 
     int x = arg[1];
     int y = arg[2];
@@ -109,7 +109,8 @@ double data_term(SDL_Surface *surface, int p, int *map)
     double np[2]; //normal vector
     int arg[3];
     is_valid(p,w,h,arg);
-
+    if (!arg[0])
+        return -2.0;
     int x = arg[1] + 1;
     int y = arg[2] + 1;
     int max = (y + PSY_W - 2) * w + (x + PSY_W - 2);
@@ -197,7 +198,7 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
     int arg[3];
     is_valid(q,w,h,arg);
 
-    if (arg[0])
+    if (!arg[0])
         return __DBL_MAX__;
 
     int xq = arg[1];
@@ -392,18 +393,17 @@ void inPainting(SDL_Surface *surface, int* map, int w, int h, double *C, int sta
     int len = w * h;
     double tmp;
     double tmp_conf;
-    double max = 0.0;
+    double max = -2.0;
     double max_conf = 0.0;
-    double max_p;
+    double max_p = -1;
     // finding the priority values
     for(int p = start; p<len; p++)
     {
         if(map[p]==1)// points of the edge
         {
             tmp_conf = conf(p, C, w, h);
-            if (tmp_conf == 0.0)
-                continue;
-            tmp = tmp_conf; //* data_term(surface,p,map);
+            //if (tmp_conf == 0.0) continue;
+            tmp = tmp_conf;//      *data_term(surface, p, map);
             if (tmp > max)
             {
                 max = tmp;
@@ -412,7 +412,8 @@ void inPainting(SDL_Surface *surface, int* map, int w, int h, double *C, int sta
             }
         }
     }
-
+    if (max_p == -1)
+        return;
     //double tmp;
     double min = __DBL_MAX__;
     double min_d;
@@ -450,12 +451,12 @@ void run_inPainting(SDL_Surface *surface, int* map)
     int start = 0;
     int cptsave = 0;
     do {
-        printf("Lancement d'un patch %d\n", start);
+        if (DEBUG) printf("Lancement d'un patch %d\n", start);
         inPainting(surface, map, w, h, C, start);
 
         if (cptsave%5 == 0) {
             SDL_SaveBMP(surface, "image_temp_inPainting.png");
-            printf("Temp img saved\n");
+            if (DEBUG) printf("Temp img saved\n");
         }
 
         not_finished = 0;
@@ -469,4 +470,6 @@ void run_inPainting(SDL_Surface *surface, int* map)
         }
         cptsave++;
     } while (not_finished);
+    SDL_SaveBMP(surface, "image_temp_inPainting.png");
+    if (DEBUG) printf("Temp img saved\n");
 }

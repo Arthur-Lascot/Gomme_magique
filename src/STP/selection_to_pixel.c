@@ -15,7 +15,7 @@ void bresenham(Point *a, Point *b, int* map, int w)
     int y1 = a->Y;
     int x2 = b->X;
     int y2 = b->Y;
-    printf("x1 = %d\ny1 = %d\nx2 = %d\ny2 = %d\n",x1,y1,x2,y2);
+    //printf("x1 = %d\ny1 = %d\nx2 = %d\ny2 = %d\n",x1,y1,x2,y2);
 
     if(dx!=0)
     {

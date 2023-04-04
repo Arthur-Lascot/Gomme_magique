@@ -128,7 +128,7 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 {
 	Inter* inter =user_data;
 	
-	printf("coucou\n");
+	//printf("coucou\n");
 	if(button!=NULL)
 	{
 		inter->usless=1;
@@ -143,7 +143,7 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 	{
 		SDL_Surface* surface;
 		surface = inter->surfaceOri;
-		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
+		//printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
 		int* map = drawBorder(inter->LP, inter->len, surface);
 		fillPoly(surface, map);
 		drawSide(surface, map);
@@ -162,7 +162,7 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		{
 			gtk_image_set_from_pixbuf(inter->Gimage,pix);
 		}
-		printf("Test validé\n");
+		//printf("Test validé\n");
 		free(map);	
 	}
 }
@@ -174,7 +174,7 @@ void on_select(GtkButton *button, gpointer user_data)
 		free(inter->LP);
 	inter->LP = malloc(20 * sizeof(int));
 	inter->len = 0;
-	printf("toutoutou\n");
+	//printf("Selection de points\n");
 	if(button!=NULL)
 	{
 		inter->usless=1;

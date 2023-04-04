@@ -2,6 +2,7 @@
 #define IN_PAINTING_H
 
 #define PSY_W 9
+#define DEBUG 0
 
 
 void is_valid(int pixel, int w, int h, int *ret);
