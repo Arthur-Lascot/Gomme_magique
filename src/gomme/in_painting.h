@@ -4,6 +4,15 @@
 #define PSY_W 9
 #define DEBUG 0
 
+typedef struct {
+    SDL_Surface *surface;
+    int* map;
+    double max_p;
+    int qstart;
+    int qend;
+    double min;
+    double min_d;
+} dpsi_arg;
 
 void is_valid(int pixel, int w, int h, int *ret);
 
@@ -14,6 +23,8 @@ void get_sobel(SDL_Surface *surface, int point, int *grad);
 double data_term(SDL_Surface *surface, int p, int *map);
 
 double dist_psi(SDL_Surface *surface, int p, int q, int *map);
+
+void *dist_psi_threaded(void *arg);
 
 void update_border(SDL_Surface *surface, int *map, int x, int y, int w, int h);
 

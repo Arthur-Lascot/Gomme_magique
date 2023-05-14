@@ -3,6 +3,9 @@
 #include "in_painting.h"
 #include "../STP/tools.h"
 #include <math.h>
+#include "pthread.h"
+#include <time.h> //used for testing
+
 /// @brief Set true in ret[0] if the entier area psi is in the bound of image AND set x in ret[1] and y in ret[2] (the upper left corner, not the center)
 /// @param pixel 
 /// @param w Width
@@ -183,7 +186,6 @@ double data_term(SDL_Surface *surface, int p, int *map)
     return (gradOGN[0]*np[0]+gradOGN[1]*np[1])/alpha;
 }
 
-/// @warning ! double type not sure !
 /// @brief Compute the distance between  psi of p  and  psi of q
 /// @param surface The image sdl surface's
 /// @param p Point with the best P(p)
@@ -266,6 +268,23 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
         }
     }
     return ssd;
+}
+
+void* dist_psi_threaded(void* arg)
+{
+    dpsi_arg* argpt = (dpsi_arg *)arg;
+    double ssd;
+    for(int q = argpt->qstart; q<argpt->qend; q++)
+    {
+        if(argpt->map[q]==0) {
+            ssd = dist_psi(argpt->surface, argpt->max_p, q, argpt->map);
+            if (ssd<argpt->min) {
+                argpt->min = ssd;
+                argpt->min_d = q;
+            }
+        }
+    }
+    return NULL;
 }
 
 /// @brief Set the new borders in map at one larger pixel side around
@@ -419,9 +438,24 @@ void inPainting(SDL_Surface *surface, int* map, int w, int h, double *C, int sta
         return;
     //double tmp;
     double min = __DBL_MAX__;
-    double min_d;
-    
-    for(int q = 0; q<len; q++)
+    double min_d = __DBL_MAX__;
+
+    dpsi_arg argpt1 = {surface, map, max_p, 0, len / 2, min, min_d};
+    dpsi_arg argpt2 = {surface, map, max_p, len / 2, len, min, min_d};
+    pthread_t thread1, thread2;
+    pthread_create(&thread1, NULL, dist_psi_threaded, (void *)&argpt1);
+    pthread_create(&thread2, NULL, dist_psi_threaded, (void *)&argpt2);
+
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    min = argpt1.min;
+    min_d = argpt1.min_d;
+    if (argpt1.min>argpt2.min) {
+        min = argpt2.min;
+        min_d = argpt2.min_d;
+    }
+
+    /*for(int q = 0; q<len; q++)
     {
         if(map[q]==0) {
             tmp = dist_psi(surface, max_p, q, map);
@@ -430,8 +464,7 @@ void inPainting(SDL_Surface *surface, int* map, int w, int h, double *C, int sta
                 min_d = q;
             }
         }
-    }
-
+    }*/
     copy(surface, C, map, max_p, min_d, max_conf);
 }
 
@@ -442,6 +475,10 @@ void run_inPainting(SDL_Surface *surface, int* map)
     const int h = surface->h;
     const int len = w * h;
     double C[len];
+
+    clock_t starttime, endtime;
+    double dura = 0.;
+
     //initialization of the array of confidence
     for(int i = 0; i<len; i++)
     {
@@ -455,8 +492,10 @@ void run_inPainting(SDL_Surface *surface, int* map)
     int cptsave = 0;
     do {
         if (DEBUG) printf("Lancement d'un patch %d\n", start);
+        starttime = clock();
         inPainting(surface, map, w, h, C, start);
-
+        endtime = clock();
+        dura += (double)(endtime - starttime) / CLOCKS_PER_SEC;
         if (cptsave%5 == 0) {
             SDL_SaveBMP(surface, "image_temp_inPainting.png");
             if (DEBUG) printf("Temp img saved\n");
@@ -475,4 +514,7 @@ void run_inPainting(SDL_Surface *surface, int* map)
     } while (not_finished);
     SDL_SaveBMP(surface, "image_temp_inPainting.png");
     if (DEBUG) printf("Temp img saved\n");
+
+    printf("RunInPainting in %lf in average, and %lf in total\n", (double)(dura/cptsave), dura);
+    
 }
