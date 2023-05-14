@@ -231,7 +231,7 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
     max = (yp + PSY_W) * w + (xp + PSY_W);
 
     //Uint8 valeurr, valeurg, valeurb;
-    for(int i = yp*w+xp; i < max; i++)
+    for(int i = yp*w+xp; i < max; )
     {
         if(map[i]==0) // if we are in already filled part of patch
         {
@@ -260,7 +260,10 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
             i += w - PSY_W;
             indexForq += w -PSY_W;
         }
-        indexForq++;
+        else {
+            indexForq++;
+            i++;
+        }
     }
     return ssd;
 }

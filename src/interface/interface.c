@@ -25,7 +25,7 @@ void create_image(char* filename,Inter* inter)
 	
     surfaceOri= IMG_Load(filename);
 	surface = surfaceOri;
-	//surface = SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888, 0);
+	surface = SDL_ConvertSurfaceFormat(surfaceOri, SDL_PIXELFORMAT_RGB888, 0);
 	SDL_SaveBMP(surface, "image.png");
 	// surface=resize(surface,400,530);
 	
