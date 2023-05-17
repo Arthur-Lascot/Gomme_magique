@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+/*#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "in_painting.h"
 #include "../STP/tools.h"
@@ -183,9 +183,9 @@ void copy(SDL_Surface *surface, double *C, int *map, int p, int q, double conf_p
     int pline;
     int pcolumn;
     int qline;
-    int qcolumn;
-    while (ip < max /*&& iq < maxq*/)
-    {
+    int qcolumn;*/    
+	//while (ip < max /*&& iq < maxq*/)
+    /*{
         if (map[ip] != 0) {
             C[ip] = conf_p;
             map[ip] = 0;
@@ -236,7 +236,7 @@ void inPainting(SDL_Surface *surface, int* map)
         if(map[p]==1)// points of the edge
         {
             tmp_conf = conf(p, C, w, h);
-            tmp = tmp_conf; //* data_term() TODO
+            tmp = tmp_conf; // data_term() TODO
             if (tmp>max) {
                 max = tmp;
                 max_p = p;
@@ -260,4 +260,4 @@ void inPainting(SDL_Surface *surface, int* map)
     }
 
     copy(surface, C, map, max_p, min_d, max_conf);
-}
+}*/
