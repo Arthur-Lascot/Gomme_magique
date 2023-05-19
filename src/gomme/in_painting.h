@@ -1,13 +1,17 @@
 #ifndef IN_PAINTING_H
 #define IN_PAINTING_H
 
-#define PSY_W 9
+#define PSY_W 13
+#define EXT 5 //size zone of analysing around p for q
 #define DEBUG 0
+
+#define THREADED 3
+#define NB_THREADS_MAX 10
 
 typedef struct {
     SDL_Surface *surface;
     int* map;
-    double max_p;
+    int max_p;
     int qstart;
     int qend;
     double min;

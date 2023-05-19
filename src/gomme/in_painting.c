@@ -44,12 +44,12 @@ double conf(int pixel, double* C, int w, int h)
 
     double confidence = 0.0;
 
-    int max = (y + PSY_W) * w + (x + PSY_W);
-    for (int i = y*w+x; i < max; i++)
+    int max = (y + PSY_W-1) * w + (x + PSY_W-1);
+    for (int i = y*w+x; i <= max; i++)
     {
         confidence += C[i];
 
-        if (i%w == x+PSY_W)
+        if (i%w == x+PSY_W-1)
             i += w - PSY_W;
     }
     confidence /= PSY_W * PSY_W;
@@ -206,15 +206,15 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
     int xq = arg[1];
     int yq = arg[2];
     
-    int max = (yq + PSY_W) * w + (xq + PSY_W);
-    for (int i = yq*w+xq; i < max; i++)
+    int max = (yq + PSY_W-1) * w + (xq + PSY_W-1);
+    for (int i = yq*w+xq; i <= max; i++)
     {
 
         if (map[i] != 0) // if not in source img
             return __DBL_MAX__;
 
 
-        if (i%w == xq+PSY_W) // jump line
+        if (i%w == xq+PSY_W-1) // jump line
             i += w - PSY_W;
     }
     double ssd = 0;
@@ -230,10 +230,10 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
     double diff;
     int xp = arg[1];
     int yp = arg[2];
-    max = (yp + PSY_W) * w + (xp + PSY_W);
+    max = (yp + PSY_W-1) * w + (xp + PSY_W-1);
 
     //Uint8 valeurr, valeurg, valeurb;
-    for(int i = yp*w+xp; i < max; )
+    for(int i = yp*w+xp; i <= max; )
     {
         if(map[i]==0) // if we are in already filled part of patch
         {
@@ -257,10 +257,10 @@ double dist_psi(SDL_Surface *surface, int p, int q, int* map)
             diff = averageQ - averageP;
             ssd += diff * diff; //square of sum difference
         }
-        if (i%w == xp+PSY_W) // jump line
+        if (i%w == xp+PSY_W-1) // jump line
         {
-            i += w - PSY_W;
-            indexForq += w -PSY_W;
+            i += w - (PSY_W-1);
+            indexForq += w - (PSY_W - 1);
         }
         else {
             indexForq++;
@@ -274,13 +274,26 @@ void* dist_psi_threaded(void* arg)
 {
     dpsi_arg* argpt = (dpsi_arg *)arg;
     double ssd;
+    int xd, xd_min, xd_max, yd, yd_min, yd_max, xq, yq;
+    xd = argpt->max_p % argpt->surface->w;
+    yd = argpt->max_p / argpt->surface->w;
+    int delta = PSY_W*EXT;
+    xd_min = xd - delta;
+    xd_max = xd + delta;
+    yd_min = yd - delta;
+    yd_max = yd + delta;
+
     for(int q = argpt->qstart; q<argpt->qend; q++)
     {
         if(argpt->map[q]==0) {
-            ssd = dist_psi(argpt->surface, argpt->max_p, q, argpt->map);
-            if (ssd<argpt->min) {
-                argpt->min = ssd;
-                argpt->min_d = q;
+            xq = q % argpt->surface->w;
+            yq = q / argpt->surface->w;
+            if (0||(xd_min<xq && xq<xd_max && yd_min<yq && yq<yd_max)) {
+                ssd = dist_psi(argpt->surface, argpt->max_p, q, argpt->map);
+                if (ssd<argpt->min) {
+                    argpt->min = ssd;
+                    argpt->min_d = q;
+                }
             }
         }
     }
@@ -372,7 +385,7 @@ void copy(SDL_Surface *surface, double *C, int *map, int p, int q, double conf_p
     xq -= offset;
     yq -= offset;
 
-    int max = (yp + PSY_W) * w + (xp + PSY_W);
+    int max = (yp + PSY_W-1) * w + (xp + PSY_W-1);
     int ip = yp*w+xp;
     int iq = yq*w+xq;
 
@@ -381,7 +394,7 @@ void copy(SDL_Surface *surface, double *C, int *map, int p, int q, double conf_p
     int pcolumn;
     int qline;
     int qcolumn;
-    while (ip < max /*&& iq < maxq*/)
+    while (ip <= max /*&& iq < maxq*/)
     {
         if (map[ip] != 0) {
             C[ip] = conf_p;
@@ -395,9 +408,9 @@ void copy(SDL_Surface *surface, double *C, int *map, int p, int q, double conf_p
             put_pixel(surface, pcolumn, pline, pixel);
         }
 
-        if (ip%w == xp+PSY_W) { // jump line
-            ip += w - PSY_W;
-            iq += w - PSY_W;
+        if (ip%w == xp+PSY_W-1) { // jump line
+            ip += w - (PSY_W-1);
+            iq += w - (PSY_W-1);
         }
         else {
             ip++;
@@ -417,7 +430,7 @@ void inPainting(SDL_Surface *surface, int* map, int w, int h, double *C, int sta
     double tmp_conf;
     double max = -2.0;
     double max_conf = 0.0;
-    double max_p = -1;
+    int max_p = -1;
     // finding the priority values
     for(int p = start; p<len; p++)
     {
@@ -425,7 +438,7 @@ void inPainting(SDL_Surface *surface, int* map, int w, int h, double *C, int sta
         {
             tmp_conf = conf(p, C, w, h);
             //if (tmp_conf == 0.0) continue;
-            tmp = tmp_conf;//      *data_term(surface, p, map);
+            tmp = tmp_conf;//       *data_term(surface, p, map);
             if (tmp > max)
             {
                 max = tmp;
@@ -440,31 +453,103 @@ void inPainting(SDL_Surface *surface, int* map, int w, int h, double *C, int sta
     double min = __DBL_MAX__;
     double min_d = __DBL_MAX__;
 
-    dpsi_arg argpt1 = {surface, map, max_p, 0, len / 2, min, min_d};
-    dpsi_arg argpt2 = {surface, map, max_p, len / 2, len, min, min_d};
-    pthread_t thread1, thread2;
-    pthread_create(&thread1, NULL, dist_psi_threaded, (void *)&argpt1);
-    pthread_create(&thread2, NULL, dist_psi_threaded, (void *)&argpt2);
+    size_t nb_threads = 5;
 
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
-    min = argpt1.min;
-    min_d = argpt1.min_d;
-    if (argpt1.min>argpt2.min) {
-        min = argpt2.min;
-        min_d = argpt2.min_d;
-    }
+    if (THREADED == 3) {
+        int xd, xd_min, xd_max, yd, yd_min, yd_max;
+        xd = max_p % w;
+        yd = max_p / w;
+        int delta = PSY_W*5;
+        xd_min = xd - delta > 0 ? xd - delta : 0;
+        xd_max = xd + delta < w ? xd + delta : w;
+        yd_min = yd - delta > 0 ? yd - delta : 0;
+        yd_max = yd + delta < h ? yd + delta : h;
 
-    /*for(int q = 0; q<len; q++)
-    {
-        if(map[q]==0) {
-            tmp = dist_psi(surface, max_p, q, map);
-            if (tmp<min) {
-                min = tmp;
-                min_d = q;
+        int i_min = xd_min + yd_min * w;
+        int i_max = xd_max + yd_max * w;
+        int i_len = i_max - i_min;
+
+        dpsi_arg argpts[NB_THREADS_MAX];
+        pthread_t threads[NB_THREADS_MAX];
+        size_t part = i_len / nb_threads;
+
+        size_t i = 0;
+        for (; i < nb_threads-1; i++) {
+            dpsi_arg argpt = 
+                {surface, map, max_p, i_min+i*part, i_min+(i+1)*part, min, min_d};
+            argpts[i] = argpt;
+            pthread_create(
+                &threads[i], NULL, dist_psi_threaded, (void *)&argpts[i]);
+        }
+        dpsi_arg argpt = {surface, map, max_p, i_min+(i)*part, i_max, min, min_d};
+        argpts[i] = argpt;
+        pthread_create(&threads[i], NULL, dist_psi_threaded, (void*)&argpts[i]);
+
+        for (size_t i = 0; i < nb_threads; i++) {
+            pthread_join(threads[i], NULL);
+            if (argpts[i].min < min) {
+                min = argpts[i].min;
+                min_d = argpts[i].min_d;
             }
         }
-    }*/
+        
+    }
+
+    if (THREADED == 2) {
+        dpsi_arg argpts[NB_THREADS_MAX];
+        pthread_t threads[NB_THREADS_MAX];
+        size_t part = len / nb_threads;
+
+        size_t i = 0;
+        for (; i < nb_threads-1; i++) {
+            dpsi_arg argpt = 
+                {surface, map, max_p, i*part, (i+1)*part, min, min_d};
+            argpts[i] = argpt;
+            pthread_create(
+                &threads[i], NULL, dist_psi_threaded, (void *)&argpts[i]);
+        }
+        dpsi_arg argpt = {surface, map, max_p, (i)*part, len, min, min_d};
+        argpts[i] = argpt;
+        pthread_create(&threads[i], NULL, dist_psi_threaded, (void*)&argpts[i]);
+
+        for (size_t i = 0; i < nb_threads; i++) {
+            pthread_join(threads[i], NULL);
+            if (argpts[i].min < min) {
+                min = argpts[i].min;
+                min_d = argpts[i].min_d;
+            }
+        }
+        
+    }
+
+    if (THREADED == 1) {
+        dpsi_arg argpt1 = {surface, map, max_p, 0, len / 2, min, min_d};
+        dpsi_arg argpt2 = {surface, map, max_p, len / 2, len, min, min_d};
+        pthread_t thread1, thread2;
+        pthread_create(&thread1, NULL, dist_psi_threaded, (void *)&argpt1);
+        pthread_create(&thread2, NULL, dist_psi_threaded, (void *)&argpt2);
+
+        pthread_join(thread1, NULL);
+        pthread_join(thread2, NULL);
+        min = argpt1.min;
+        min_d = argpt1.min_d;
+        if (argpt1.min>argpt2.min) {
+            min = argpt2.min;
+            min_d = argpt2.min_d;
+        }
+    }
+    if (THREADED == 0) {
+        for(int q = 0; q<len; q++)
+        {
+            if(map[q]==0) {
+                tmp = dist_psi(surface, max_p, q, map);
+                if (tmp<min) {
+                    min = tmp;
+                    min_d = q;
+                }
+            }
+        }
+    }
     copy(surface, C, map, max_p, min_d, max_conf);
 }
 
@@ -476,8 +561,10 @@ void run_inPainting(SDL_Surface *surface, int* map)
     const int len = w * h;
     double C[len];
 
-    clock_t starttime, endtime;
-    double dura = 0.;
+    clock_t startclock, endclock;
+    time_t starttime, endtime;
+    double duraclock = 0.;
+    double duratime = 0.;
 
     //initialization of the array of confidence
     for(int i = 0; i<len; i++)
@@ -492,11 +579,14 @@ void run_inPainting(SDL_Surface *surface, int* map)
     int cptsave = 0;
     do {
         if (DEBUG) printf("Lancement d'un patch %d\n", start);
-        starttime = clock();
+        startclock = clock();
+        starttime = time(NULL);
         inPainting(surface, map, w, h, C, start);
-        endtime = clock();
-        dura += (double)(endtime - starttime) / CLOCKS_PER_SEC;
-        if (cptsave%5 == 0) {
+        endclock = clock();
+        endtime = time(NULL);
+        duraclock += (double)(endclock - startclock) / CLOCKS_PER_SEC;
+        duratime += (double)(endtime - starttime);
+        if (cptsave%30 == 0) {
             SDL_SaveBMP(surface, "image_temp_inPainting.png");
             if (DEBUG) printf("Temp img saved\n");
         }
@@ -515,6 +605,6 @@ void run_inPainting(SDL_Surface *surface, int* map)
     SDL_SaveBMP(surface, "image_temp_inPainting.png");
     if (DEBUG) printf("Temp img saved\n");
 
-    printf("RunInPainting in %lf in average, and %lf in total\n", (double)(dura/cptsave), dura);
+    printf("RunInPainting in \nCPU time : %lf in average, and %lf in total\nIRL time : %lf in average, and %lf in total\nThe gain in time is of %.3lf%c \n", (double)(duraclock/cptsave), duraclock,(double)(duratime/cptsave), duratime,(duraclock-duratime)*100/duraclock,'%');
     
 }
