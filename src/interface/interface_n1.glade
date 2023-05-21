@@ -209,6 +209,7 @@
                 <property name="height-request">285</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="double-buffered">False</property>
                 <property name="stock">gtk-missing-image</property>
               </object>
             </child>
