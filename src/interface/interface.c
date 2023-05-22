@@ -140,19 +140,19 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 	{
 		SDL_Surface* surface;
 		surface = inter->surfaceOri;
-		printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
+		//printf("c'est ici que tu met ton code avec inter->LP la liste et inter->len le nombre déléments\n");
 		int* map = drawBorder(inter->LP, inter->len, surface);
 		fillPoly(surface, map);
 		drawSide(surface, map);
-		printf("coucou\n");
+		//printf("coucou\n");
 		SDL_SaveBMP(surface, "image4.png");
 		inter->pix = gdk_pixbuf_new_from_file("image4.png",NULL);
 		if(inter->pix!=NULL)
 		{
 			gtk_image_set_from_pixbuf(inter->Gimage,inter->pix);
 		}
-		printf("Test validé\n");
-		printf("Lancement de run_inPainting...\n");
+		//printf("Test validé\n");
+		//printf("Lancement de run_inPainting...\n");
 		run_inPainting(surface, map);
 		printf("InPainting fini, sauvegarde de l'image...\n");
 		surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888, 0);
@@ -193,9 +193,9 @@ void on_click(GtkButton *button, gpointer user_data)
 	}
 	int x1,y1;
 	gtk_widget_get_pointer(GTK_WIDGET(inter->Gimage),&x1,&y1);
-	printf("%i %i\n",x1,y1);
-	inter->LP[inter->len*2]=x1;
-	inter->LP[inter->len*2+1]=y1;
+	//printf("%i %i\n",x1,y1);
+	inter->LP[inter->len*2]=x1*inter->d1/inter->surfaceOri->w;
+	inter->LP[inter->len*2+1]=y1*inter->d2/inter->surfaceOri->h;
 	/*printf("x1 = %d\n y1 = %d\n", (inter->LP[inter->len * 2]), 
 		(inter->LP[inter->len * 2 + 1]));*/
 	inter->len=(inter->len+1)%510;
