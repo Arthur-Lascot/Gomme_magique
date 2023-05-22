@@ -153,8 +153,8 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		}
 		//printf("Test validé\n");
 		//printf("Lancement de run_inPainting...\n");
-		run_inPainting(surface, map);
-		printf("InPainting fini, sauvegarde de l'image...\n");
+	//	run_inPainting(surface, map);
+	//	printf("InPainting fini, sauvegarde de l'image...\n");
 		surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888, 0);
 		surface=resize(surface,(int)inter->d1,(int)inter->d2);
 		SDL_SaveBMP(surface, "image_inPainting.png");
@@ -193,11 +193,11 @@ void on_click(GtkButton *button, gpointer user_data)
 	}
 	int x1,y1;
 	gtk_widget_get_pointer(GTK_WIDGET(inter->Gimage),&x1,&y1);
-	//printf("%i %i\n",x1,y1);
-	inter->LP[inter->len*2]=x1*inter->d1/inter->surfaceOri->w;
-	inter->LP[inter->len*2+1]=y1*inter->d2/inter->surfaceOri->h;
-	/*printf("x1 = %d\n y1 = %d\n", (inter->LP[inter->len * 2]), 
-		(inter->LP[inter->len * 2 + 1]));*/
+	printf("%i %i\n",x1,y1);
+	inter->LP[inter->len*2]=x1*inter->surfaceOri->w/inter->d1;
+	inter->LP[inter->len*2+1]=y1*inter->surfaceOri->h/inter->d2;
+	printf("x1 = %d\n y1 = %d\n", (inter->LP[inter->len * 2]), 
+		(inter->LP[inter->len * 2 + 1]));
 	inter->len=(inter->len+1)%510;
 
 }
