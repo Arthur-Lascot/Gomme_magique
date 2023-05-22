@@ -605,6 +605,6 @@ void run_inPainting(SDL_Surface *surface, int* map)
     SDL_SaveBMP(surface, "image_temp_inPainting.png");
     if (DEBUG) printf("Temp img saved\n");
 
-    printf("RunInPainting in \nCPU time : %lf in average, and %lf in total\nIRL time : %lf in average, and %lf in total\nThe gain in time is of %.3lf%c \n", (double)(duraclock/cptsave), duraclock,(double)(duratime/cptsave), duratime,(duraclock-duratime)*100/duraclock,'%');
+    if (DEBUG) printf("RunInPainting in \nCPU time : %lf in average, and %lf in total\nIRL time : %lf in average, and %lf in total\nThe gain in time is of %.3lf%c \n", (double)(duraclock/cptsave), duraclock,(double)(duratime/cptsave), duratime,(duraclock-duratime)*100/duraclock,'%');
     
 }

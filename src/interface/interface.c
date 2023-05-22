@@ -78,7 +78,7 @@ void on_fchose_image(GtkButton *button, gpointer user_data)
 void on_sim_1(GtkButton *button, gpointer user_data)
 {
 	Inter* inter=user_data;
-	printf("coucou1\n");
+	//printf("coucou1\n");
 	if(button!=NULL)
 	{
 		inter->usless=1;
@@ -100,7 +100,7 @@ void on_sim_1(GtkButton *button, gpointer user_data)
 void on_sim_2(GtkButton *button, gpointer user_data)
 {
 	Inter* inter=user_data;
-	printf("coucou\n");
+	//printf("coucou\n");
 	inter->image=2;
 	if(button!=NULL)
 	{
@@ -123,7 +123,7 @@ void on_sim_2(GtkButton *button, gpointer user_data)
 void on_sim_3(GtkButton *button, gpointer user_data)
 {
 	Inter* inter=user_data;
-	printf("coucou\n");
+	//printf("coucou\n");
 	if(button!=NULL)
 	{
 		inter->usless=1;
@@ -135,7 +135,7 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 	gtk_widget_set_sensitive(GTK_WIDGET(inter->Bse_im),TRUE);
 	gtk_widget_set_focus_on_click(GTK_WIDGET(inter->Bsi),FALSE);
 	gtk_widget_set_visible(GTK_WIDGET(inter->Bsi),FALSE);
-	printf("inter->len: %li\n",inter->len);
+	//printf("inter->len: %li\n",inter->len);
 	if (inter->len>=3)
 	{
 		SDL_Surface* surface;
@@ -153,8 +153,8 @@ void on_sim_3(GtkButton *button, gpointer user_data)
 		}
 		//printf("Test validé\n");
 		//printf("Lancement de run_inPainting...\n");
-	//	run_inPainting(surface, map);
-	//	printf("InPainting fini, sauvegarde de l'image...\n");
+		run_inPainting(surface, map);
+		//printf("InPainting fini, sauvegarde de l'image...\n");
 		surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGB888, 0);
 		surface=resize(surface,(int)inter->d1,(int)inter->d2);
 		SDL_SaveBMP(surface, "image_inPainting.png");
@@ -193,11 +193,10 @@ void on_click(GtkButton *button, gpointer user_data)
 	}
 	int x1,y1;
 	gtk_widget_get_pointer(GTK_WIDGET(inter->Gimage),&x1,&y1);
-	printf("%i %i\n",x1,y1);
+	//printf("%i %i\n",x1,y1);
 	inter->LP[inter->len*2]=x1*inter->surfaceOri->w/inter->d1;
 	inter->LP[inter->len*2+1]=y1*inter->surfaceOri->h/inter->d2;
-	printf("x1 = %d\n y1 = %d\n", (inter->LP[inter->len * 2]), 
-		(inter->LP[inter->len * 2 + 1]));
+	//printf("x1= %d\t y1= %d\n", (inter->LP[inter->len * 2]), (inter->LP[inter->len * 2 + 1]));
 	inter->len=(inter->len+1)%510;
 
 }
@@ -268,7 +267,7 @@ void init_interface()
 	if (gtk_builder_add_from_file(builder, "src/interface/interface_n1.glade", &error) == 0)         
 	{                                                                           
 		g_printerr("Error loading file: %s\n", error->message);                 
-		g_clear_error(&error);                                                                                                                
+		g_clear_error(&error);                                               
 	}                                                                           
 	// Gets the widgets.                                                        
 	GtkWindow* window = 
