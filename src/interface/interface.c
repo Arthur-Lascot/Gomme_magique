@@ -222,8 +222,8 @@ void invisible(GtkButton *button, gpointer user_data)
 	// take size of image and he change this
 	double d1;
 	double d2;
-	d1=gtk_range_get_value(GTK_RANGE(inter->W_im));
-	d2=gtk_range_get_value(GTK_RANGE(inter->H_im));
+	d2=gtk_range_get_value(GTK_RANGE(inter->W_im));
+	d1=gtk_range_get_value(GTK_RANGE(inter->H_im));
 	gtk_widget_set_visible(GTK_WIDGET(inter->W_Option),FALSE);
 	if(inter->surface!=NULL)
 		SDL_FreeSurface(inter->surface);
